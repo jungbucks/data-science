@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>데이터 과학 — 4단원 학습 시리즈</title>
+<style>
+:root {
+  --bg: #FAFBFD; --card: #FFFFFF; --ink: #17263B; --muted: #5D6B7E; --line: #E4E9F0;
+  --c1: #2563EB; --c2: #D97706; --c3: #0891B2; --c4: #7C3AED; --c5: #DB2777;
+  --shadow: 0 3px 16px rgba(23, 38, 59, .07);
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: 'Pretendard Variable', Pretendard, 'Malgun Gothic', 'Noto Sans KR', -apple-system, sans-serif;
+  background: var(--bg); color: var(--ink); line-height: 1.7; font-size: 16.5px;
+  min-height: 100vh;
+}
+a:focus-visible { outline: 3px solid var(--c3); outline-offset: 2px; }
+header {
+  position: relative; text-align: center; padding: 72px 20px 40px; overflow: hidden;
+  background: var(--card); border-bottom: 1px solid var(--line);
+}
+header::before {
+  content: ''; position: absolute; inset: 0; pointer-events: none;
+  background:
+    radial-gradient(circle 6px at 10% 26%, var(--c1) 98%, transparent),
+    radial-gradient(circle 5px at 20% 72%, var(--c3) 98%, transparent),
+    radial-gradient(circle 7px at 30% 18%, var(--c2) 98%, transparent),
+    radial-gradient(circle 5px at 44% 82%, var(--c5) 98%, transparent),
+    radial-gradient(circle 6px at 62% 78%, var(--c4) 98%, transparent),
+    radial-gradient(circle 5px at 73% 20%, var(--c1) 98%, transparent),
+    radial-gradient(circle 7px at 85% 62%, var(--c3) 98%, transparent),
+    radial-gradient(circle 5px at 92% 30%, var(--c2) 98%, transparent);
+  opacity: .3;
+}
+.eyebrow {
+  display: inline-block; font-size: 13px; font-weight: 800; letter-spacing: .12em;
+  color: var(--muted); background: var(--bg); border: 1px solid var(--line);
+  padding: 5px 16px; border-radius: 99px; margin-bottom: 16px;
+}
+h1 { font-size: clamp(32px, 6vw, 50px); font-weight: 900; letter-spacing: -.02em; }
+.sub { color: var(--muted); margin-top: 10px; font-size: 17px; }
+main { max-width: 760px; margin: 0 auto; padding: 36px 20px 60px; }
+.unit {
+  display: flex; align-items: center; gap: 18px;
+  background: var(--card); border: 1px solid var(--line); border-left: 6px solid var(--ua);
+  border-radius: 16px; box-shadow: var(--shadow);
+  padding: 22px 24px; margin-bottom: 14px; text-decoration: none; color: var(--ink);
+  transition: transform .15s, box-shadow .15s, border-color .15s;
+}
+.unit:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(23,38,59,.12); }
+.unit .no {
+  width: 52px; height: 52px; border-radius: 14px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 21px; font-weight: 900; color: #fff; background: var(--ua);
+}
+.unit h2 { font-size: 19px; font-weight: 900; margin-bottom: 2px; }
+.unit p { font-size: 14px; color: var(--muted); margin: 0; }
+.unit .go { margin-left: auto; font-weight: 900; color: var(--ua); font-size: 18px; flex-shrink: 0; }
+.u1 { --ua: #0891B2; } .u2 { --ua: #D97706; } .u3 { --ua: #7C3AED; } .u4 { --ua: #DB2777; }
+.note { text-align: center; font-size: 14px; color: var(--muted); margin-top: 22px; }
+footer { text-align: center; color: var(--muted); font-size: 13.5px; padding: 20px; }
+@media (max-width: 520px) { .unit { padding: 16px; gap: 12px; } .unit .no { width: 44px; height: 44px; font-size: 18px; } }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+</head>
+<body>
+<header>
+  <span class="eyebrow">고등학교 · 데이터 과학</span>
+  <h1>데이터 과학 학습 시리즈</h1>
+  <p class="sub">감이 아니라 데이터로 — 개념부터 프로젝트까지 4단원 🔍</p>
+</header>
+<main>
+  <a class="unit u1" href="unit1.html">
+    <span class="no">1</span>
+    <span><h2>데이터 과학의 이해</h2><p>데이터 기반 의사결정 · 정형 vs 비정형 · 데이터베이스와 통합 · 직업</p></span>
+    <span class="go">→</span>
+  </a>
+  <a class="unit u2" href="unit2.html">
+    <span class="no">2</span>
+    <span><h2>데이터 준비와 분석</h2><p>편향 없는 수집 · 이상치·결측치·정규화 · 속성 간 관계 · 렌즈 바꿔 보기</p></span>
+    <span class="go">→</span>
+  </a>
+  <a class="unit u3" href="unit3.html">
+    <span class="no">3</span>
+    <span><h2>데이터 모델링과 평가</h2><p>모델과 도구 · 회귀 (통계 vs 기계학습) · 군집 · 연관 · 평가와 선택</p></span>
+    <span class="go">→</span>
+  </a>
+  <a class="unit u4" href="unit4.html">
+    <span class="no">4</span>
+    <span><h2>프로젝트 워크북</h2><p>주제 적합성 판정 → 탐색 → 두 방법 분석 → 해석 → 성찰·공유 · 제출 양식</p></span>
+    <span class="go">→</span>
+  </a>
+  <p class="note">각 단원은 파일 하나로 완결 — 내려받아 더블클릭해도 똑같이 동작합니다 (오프라인 OK)</p>
+</main>
+<footer>데이터 과학 시리즈 · 순수 HTML/CSS/JS · 외부 요청 0</footer>
+</body>
+</html>

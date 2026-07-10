@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>데이터 과학 2단원 — 데이터 준비와 분석</title>
+<style>
+/* ==========================================================
+   데이터 과학 시리즈 공통 (DESIGN_SPEC.md) — 2단원: 앰버
+   ========================================================== */
+:root {
+  /* 단원 액센트 — 2단원 앰버 */
+  --ua: #D97706;
+  --ua-dark: #B45309;
+  --ua-soft: #FBF0DC;
+  /* 중립 */
+  --bg: #FAFBFD;
+  --card: #FFFFFF;
+  --ink: #17263B;
+  --muted: #5D6B7E;
+  --line: #E4E9F0;
+  /* 차트 카테고리 5색 (고정 순서 — DESIGN_SPEC 검증 완료) */
+  --c1: #2563EB; --c2: #D97706; --c3: #0891B2; --c4: #7C3AED; --c5: #DB2777;
+  /* 시맨틱 */
+  --ok: #0E9F6E; --bad: #E02424;
+  --radius: 18px;
+  --shadow: 0 3px 16px rgba(23, 38, 59, .07);
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'Pretendard Variable', Pretendard, 'Malgun Gothic', 'Noto Sans KR', -apple-system, sans-serif;
+  background: var(--bg); color: var(--ink);
+  line-height: 1.75; font-size: 16.5px;
+}
+button:focus-visible, summary:focus-visible, a:focus-visible { outline: 3px solid var(--ua); outline-offset: 2px; }
+
+/* ---------- 헤더: 도트 산점 모티프 ---------- */
+header {
+  position: relative; text-align: center;
+  padding: 56px 20px 34px; overflow: hidden;
+  background: var(--card); border-bottom: 1px solid var(--line);
+}
+header::before {
+  content: ''; position: absolute; inset: 0; pointer-events: none;
+  background:
+    radial-gradient(circle 5px at 12% 30%, var(--c1) 98%, transparent),
+    radial-gradient(circle 4px at 22% 68%, var(--c3) 98%, transparent),
+    radial-gradient(circle 6px at 31% 22%, var(--c2) 98%, transparent),
+    radial-gradient(circle 4px at 45% 80%, var(--c5) 98%, transparent),
+    radial-gradient(circle 5px at 63% 76%, var(--c4) 98%, transparent),
+    radial-gradient(circle 4px at 72% 24%, var(--c1) 98%, transparent),
+    radial-gradient(circle 6px at 84% 60%, var(--c3) 98%, transparent),
+    radial-gradient(circle 4px at 91% 32%, var(--c2) 98%, transparent);
+  opacity: .28;
+}
+.unit-badge {
+  display: inline-block; font-size: 13px; font-weight: 800; letter-spacing: .1em;
+  color: var(--ua-dark); background: var(--ua-soft); border: 1px solid var(--ua);
+  padding: 5px 16px; border-radius: 99px; margin-bottom: 16px;
+}
+h1 { font-size: clamp(30px, 5vw, 44px); font-weight: 900; letter-spacing: -.02em; line-height: 1.25; }
+h1 .ua { color: var(--ua-dark); }
+.sub { color: var(--muted); margin-top: 10px; font-size: 17px; }
+
+/* ---------- 미니 목차 ---------- */
+nav.toc {
+  display: flex; gap: 8px; flex-wrap: wrap; justify-content: center;
+  padding: 14px 20px; background: var(--card);
+  border-bottom: 1px solid var(--line);
+  position: sticky; top: 0; z-index: 50;
+}
+nav.toc a {
+  font-size: 14px; font-weight: 700; color: var(--muted); text-decoration: none;
+  padding: 7px 14px; border-radius: 99px; border: 1.5px solid var(--line);
+  transition: color .15s, border-color .15s, background .15s;
+}
+nav.toc a:hover { color: var(--ua-dark); border-color: var(--ua); background: var(--ua-soft); }
+
+/* ---------- 본문 & 카드 ---------- */
+main { max-width: 940px; margin: 0 auto; padding: 30px 20px 80px; }
+.card {
+  background: var(--card); border: 1px solid var(--line); border-radius: var(--radius);
+  box-shadow: var(--shadow); padding: 30px 30px 26px; margin-bottom: 26px;
+  scroll-margin-top: 70px;
+}
+h2 { font-size: 24px; font-weight: 900; letter-spacing: -.01em; margin-bottom: 8px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+h2 .chip { font-size: 12px; font-weight: 800; color: #fff; background: var(--ua); border-radius: 8px; padding: 3px 10px; flex-shrink: 0; }
+h3 { font-size: 18px; font-weight: 800; margin: 26px 0 8px; }
+h3::before { content: '📌 '; }
+p { margin: 8px 0; }
+.lead { color: var(--muted); font-size: 15.5px; margin-bottom: 12px; }
+strong { font-weight: 800; }
+mark { background: linear-gradient(transparent 55%, #FDE3B3 55%); color: inherit; padding: 0 2px; font-weight: 700; }
+ul.list, ol.list { padding-left: 24px; margin: 8px 0; }
+ul.list li, ol.list li { margin: 5px 0; }
+
+.tip, .warn { border-radius: 14px; padding: 15px 20px; margin: 16px 0; font-size: 15.5px; border: 1.5px solid; }
+.tip { background: var(--ua-soft); border-color: var(--ua); }
+.warn { background: #FDF2F2; border-color: #F8B4B4; }
+.tip .t, .warn .t { font-weight: 900; display: block; margin-bottom: 4px; }
+.tip .t { color: var(--ua-dark); }
+.warn .t { color: var(--bad); }
+
+/* ---------- 표 ---------- */
+.tbl-wrap { overflow-x: auto; margin: 14px 0; border-radius: 12px; border: 1px solid var(--line); }
+table { border-collapse: collapse; width: 100%; min-width: 480px; background: #fff; font-size: 15px; }
+th { background: var(--ink); color: #fff; font-weight: 800; padding: 10px 14px; text-align: left; font-size: 14px; }
+td { padding: 10px 14px; border-bottom: 1px solid var(--line); vertical-align: top; }
+tr:last-child td { border-bottom: none; }
+
+/* ---------- 데모 공통 ---------- */
+.demo { background: #F3F6FA; border: 2px dashed #C9D4E0; border-radius: 16px; padding: 22px; margin: 18px 0; }
+.demo-title { font-weight: 900; font-size: 15px; margin-bottom: 12px; }
+.badge-live {
+  font-size: 11px; color: #fff; background: var(--ua);
+  border-radius: 99px; padding: 2px 9px; margin-left: 6px; vertical-align: 2px;
+  animation: pulse 2s infinite;
+}
+@keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: .55; } }
+.btn {
+  font-family: inherit; font-size: 14.5px; font-weight: 800;
+  padding: 10px 18px; border-radius: 12px; cursor: pointer;
+  border: none; color: #fff; background: var(--ua);
+  box-shadow: 0 3px 10px rgba(217, 119, 6, .3);
+  transition: transform .15s, filter .15s;
+}
+.btn:hover { transform: translateY(-2px); filter: brightness(1.06); }
+.btn:active { transform: translateY(0) scale(.97); }
+.btn:disabled { opacity: .4; cursor: not-allowed; transform: none; }
+.btn.ghost { background: #fff; color: var(--ink); border: 2px solid var(--line); box-shadow: none; }
+.btn.ghost.on { border-color: var(--ua); color: var(--ua-dark); background: var(--ua-soft); }
+.btn-row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 12px; }
+.demo-note {
+  margin-top: 14px; font-size: 15px; font-weight: 600;
+  background: #fff; border-radius: 12px; padding: 12px 16px;
+  border-left: 4px solid var(--ua); min-height: 46px;
+}
+
+/* ---------- 가로 막대 (단일 측정값 = 단일 색조) ---------- */
+.bars { margin: 14px 4px 4px; }
+.bar-row { display: flex; align-items: center; gap: 10px; margin: 9px 0; }
+.bar-name { width: 96px; font-size: 14px; font-weight: 700; flex-shrink: 0; text-align: right; }
+.bar-track { flex: 1; height: 20px; background: #fff; border-radius: 4px; border: 1px solid var(--line); overflow: hidden; }
+.bar-fill {
+  height: 100%; width: 0; border-radius: 0 4px 4px 0;
+  background: #F0D3A2; transition: width .8s cubic-bezier(.22, 1, .36, 1);
+}
+.bar-row.top .bar-fill { background: var(--ua); }
+.bar-row.out .bar-fill { background: var(--bad); }
+.bar-val { width: 64px; font-size: 14px; font-weight: 800; font-variant-numeric: tabular-nums; flex-shrink: 0; }
+.bar-row.out .bar-val { color: var(--bad); }
+
+/* ---------- 산점도 (2-3) ---------- */
+.scatter-wrap { background: #fff; border: 1px solid var(--line); border-radius: 12px; padding: 14px 14px 6px; margin-top: 12px; }
+.scatter { position: relative; height: 230px; border-left: 2px solid var(--line); border-bottom: 2px solid var(--line); margin: 6px 8px 4px 8px; }
+.scatter .dot {
+  position: absolute; width: 11px; height: 11px; border-radius: 50%;
+  background: var(--ua); box-shadow: 0 0 0 2px #fff;
+  transform: translate(-50%, 50%);
+  transition: left .8s cubic-bezier(.22, 1, .36, 1), bottom .8s cubic-bezier(.22, 1, .36, 1);
+}
+.axis-x, .axis-y { font-size: 12.5px; font-weight: 700; color: var(--muted); }
+.axis-x { text-align: right; padding: 2px 8px 6px 0; }
+.axis-y { padding: 0 0 2px 8px; }
+
+/* ---------- 2계열 묶음 막대 (2-4) ---------- */
+.legend { display: flex; gap: 16px; flex-wrap: wrap; font-size: 13.5px; font-weight: 700; color: var(--ink); margin: 8px 4px; }
+.legend .sw { display: inline-block; width: 12px; height: 12px; border-radius: 3px; margin-right: 5px; vertical-align: -1px; }
+.g-week { margin: 12px 0; }
+.g-week .gw-label { font-size: 13px; font-weight: 800; color: var(--muted); margin-bottom: 3px; }
+.g-pair .bar-row { margin: 3px 0; }
+.g-pair .bar-name { width: 76px; font-size: 13px; }
+.g-pair .bar-track { height: 16px; }
+.g-pair .bar-fill { transition: width .7s cubic-bezier(.22, 1, .36, 1); border-radius: 0 4px 4px 0; }
+.g-pair .f1 { background: var(--c1); }
+.g-pair .f2 { background: var(--c2); }
+.view { display: none; }
+.view.show { display: block; animation: fadeUp .45s ease both; }
+@keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+
+footer { text-align: center; color: var(--muted); font-size: 13.5px; padding: 22px; }
+footer .series { font-weight: 800; color: var(--ua-dark); }
+
+/* ---------- 퀴즈 (시리즈 공통 엔진) ---------- */
+details.acc { border-radius: var(--radius); background: var(--card); box-shadow: var(--shadow); border: 1px solid var(--line); margin-bottom: 18px; overflow: hidden; }
+details.acc summary { cursor: pointer; list-style: none; padding: 20px 26px; font-weight: 900; font-size: 17px; display: flex; align-items: center; gap: 10px; }
+details.acc summary::-webkit-details-marker { display: none; }
+details.acc summary::after { content: '▼'; margin-left: auto; font-size: 12px; color: var(--ua); transition: transform .25s; }
+details.acc[open] summary::after { transform: rotate(180deg); }
+details.acc summary:hover { background: var(--ua-soft); }
+details.acc .acc-body { padding: 4px 26px 26px; }
+.q-item { margin-bottom: 24px; }
+.q-text { font-weight: 800; margin-bottom: 10px; }
+.q-text .qnum { display: inline-flex; align-items: center; justify-content: center; width: 26px; height: 26px; border-radius: 50%; margin-right: 8px; background: var(--ua); color: #fff; font-size: 13px; font-weight: 900; }
+.q-opts { display: grid; gap: 8px; }
+.q-opt { font-family: inherit; text-align: left; font-size: 15px; font-weight: 600; padding: 11px 16px; border-radius: 12px; cursor: pointer; border: 2px solid var(--line); background: #fff; color: var(--ink); transition: all .18s; }
+.q-opt:hover:not(:disabled) { border-color: var(--ua); background: var(--ua-soft); transform: translateX(4px); }
+.q-opt.correct { border-color: var(--ok); background: #F0FBF7; font-weight: 800; }
+.q-opt.wrong { border-color: var(--bad); background: #FDF2F2; animation: shake .35s; }
+.q-opt:disabled { cursor: default; opacity: .75; }
+.q-opt.correct:disabled, .q-opt.wrong:disabled { opacity: 1; }
+@keyframes shake { 0%,100% { transform: translateX(0); } 25% { transform: translateX(-6px); } 75% { transform: translateX(6px); } }
+.q-exp { display: none; margin-top: 10px; font-size: 14.5px; background: var(--ua-soft); border: 1.5px solid var(--ua); border-radius: 12px; padding: 12px 16px; }
+.q-exp.show { display: block; animation: fadeUp .3s both; }
+.quiz-status { font-size: 14px; font-weight: 800; color: var(--muted); margin-bottom: 16px; }
+.quiz-status b { color: var(--ua-dark); }
+
+@media (max-width: 640px) {
+  body { font-size: 15.5px; }
+  .card { padding: 22px 18px; }
+  .bar-name { width: 74px; font-size: 13px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <span class="unit-badge">데이터 과학 · 2단원 / 4</span>
+  <h1>데이터 <span class="ua">준비와 분석</span></h1>
+  <p class="sub">좋은 분석의 8할은 좋은 재료 — 모으고, 청소하고, 그려 보자 🧹</p>
+</header>
+
+<nav class="toc">
+  <a href="#c1">2-1 편향 없는 수집</a>
+  <a href="#c2">2-2 전처리와 시각화</a>
+  <a href="#c3">2-3 속성 간 관계</a>
+  <a href="#c4">2-4 다른 방법, 다른 결론</a>
+  <a href="#quiz">📝 퀴즈</a>
+</nav>
+
+<main>
+
+  <!-- ═══════════ 2-1 편향 없는 수집 ═══════════ -->
+  <div class="card" id="c1">
+    <h2><span class="chip">2-1</span> 수집 — 누구에게 묻느냐가 답을 바꾼다 🎤</h2>
+    <p class="lead">데이터의 첫 단추는 수집. 그리고 수집의 최대 적은 <strong>편향(bias)</strong>이다.</p>
+    <p>"우리 학교 학생들이 좋아하는 체육대회 종목"을 조사한다고 하자. <mark>축구부실 앞에서만</mark> 설문지를 돌리면? 결과는 전교생의 생각이 아니라 <strong>축구부의 생각</strong>이 된다. 표본(일부)이 전체를 <strong>대표</strong>하지 못하면, 그 뒤의 모든 분석이 통째로 틀어진다.</p>
+
+    <div class="demo">
+      <div class="demo-title">🎮 설문 시뮬레이터 — 같은 질문, 다른 대상 <span class="badge-live">LIVE</span></div>
+      <p style="font-size:15px">"체육대회에서 가장 하고 싶은 종목은?" — <strong>누구에게</strong> 물어볼까?</p>
+      <div class="btn-row">
+        <button class="btn ghost survey-btn" data-who="soccer">⚽ 축구부 30명</button>
+        <button class="btn ghost survey-btn" data-who="book">📚 도서부 30명</button>
+        <button class="btn ghost survey-btn" data-who="random">🎲 전교생 무작위 100명</button>
+      </div>
+      <div class="bars" id="surveyBars" style="display:none">
+        <p id="surveyCap" style="font-size:13.5px;font-weight:800;color:var(--muted);margin-bottom:2px"></p>
+        <div class="bar-row" data-k="축구">   <span class="bar-name">⚽ 축구</span>      <div class="bar-track"><div class="bar-fill"></div></div><span class="bar-val"></span></div>
+        <div class="bar-row" data-k="피구">   <span class="bar-name">🏐 피구</span>      <div class="bar-track"><div class="bar-fill"></div></div><span class="bar-val"></span></div>
+        <div class="bar-row" data-k="이어달리기"><span class="bar-name">🏃 이어달리기</span><div class="bar-track"><div class="bar-fill"></div></div><span class="bar-val"></span></div>
+        <div class="bar-row" data-k="OX퀴즈"> <span class="bar-name">⭕ OX퀴즈</span>    <div class="bar-track"><div class="bar-fill"></div></div><span class="bar-val"></span></div>
+      </div>
+      <div class="demo-note" id="surveyNote">세 대상을 모두 눌러 보고, 결과가 어떻게 달라지는지 비교해 보자!</div>
+    </div>
+
+    <h3>수집했다면 — 데이터의 특성부터 살핀다</h3>
+    <div class="tbl-wrap"><table>
+      <tr><th>확인할 것</th><th>질문</th><th>위 설문이라면</th></tr>
+      <tr><td><strong>양</strong></td><td>몇 건인가? 결론 내리기에 충분한가?</td><td>30명? 100명? 전교생 800명 중 몇 %?</td></tr>
+      <tr><td><strong>대상</strong></td><td>표본이 전체를 대표하는가?</td><td>특정 동아리만? 무작위인가?</td></tr>
+      <tr><td><strong>시점·방법</strong></td><td>언제, 어떻게 모았나?</td><td>체육대회 직후? 익명 설문? 손들기?</td></tr>
+    </table></div>
+    <div class="tip"><span class="t">💡 무작위(random)가 왜 강력한가</span>
+      무작위 추출은 특정 집단의 목소리가 과대 대표되는 것을 막는, <strong>편향을 줄이는 가장 기본 장치</strong>다. 조사 결과를 볼 때도 항상 물어보자 — <mark>"이거 누구한테 물어본 거지?"</mark>
+    </div>
+  </div>
+
+  <!-- ═══════════ 2-2 전처리와 시각화 ═══════════ -->
+  <div class="card" id="c2">
+    <h2><span class="chip">2-2</span> 전처리 — 데이터 청소의 기술 🧹</h2>
+    <p class="lead">수집된 데이터는 항상 지저분하다. 오류를 최소화하는 청소가 <strong>전처리</strong>다.</p>
+
+    <h3>이상치(outlier) — 혼자 튀는 값</h3>
+    <p>우리 반 10명의 키를 조사했더니 한 명이 <strong>1850cm</strong>? 입력 실수(185.0의 오타)다. 이런 이상치 하나가 통계를 어떻게 망가뜨리는지 직접 보자.</p>
+
+    <div class="demo">
+      <div class="demo-title">🎮 이상치 하나의 위력 <span class="badge-live">LIVE</span></div>
+      <div class="bars" id="outBars"></div>
+      <p style="font-size:16px;font-weight:800;margin-top:10px">📏 평균 키: <span id="outAvg" style="color:var(--bad)">336.2cm</span> <span id="outAvgTag" style="font-size:13.5px;color:var(--muted)">…우리 반이 거인 학급?!</span></p>
+      <div class="btn-row">
+        <button class="btn" id="outBtn">🧹 이상치 제거하기</button>
+        <button class="btn ghost" id="outReset" disabled>↺ 되돌리기</button>
+      </div>
+      <div class="demo-note" id="outNote">빨간 막대(1850cm)가 평균을 어디까지 끌어올렸는지 보자. 제거하면?</div>
+    </div>
+
+    <h3>결측치 — 비어 있는 칸</h3>
+    <p>설문 응답 중 몇 칸이 비어 있다면? 대표적인 처리법 세 가지 — ① 그 행을 <strong>제외</strong>한다 ② 평균 등 대표값으로 <strong>채운다</strong> ③ "무응답" 자체를 <strong>하나의 답</strong>으로 다룬다. <mark>그대로 두고 계산하면 오류</mark>가 나므로, 어떤 방법이든 "결정"을 해야 한다.</p>
+
+    <h3>정규화 — 서로 다른 눈금을 맞추기</h3>
+    <p>수학 점수(0~100점)와 키(150~190cm)를 함께 분석하려면? 범위가 달라 그대로는 비교가 안 된다. 각 값을 <strong>0~1 사이로</strong> 바꿔 눈금을 통일하는 것이 정규화다:</p>
+    <p style="text-align:center;font-weight:800;background:var(--ua-soft);border-radius:12px;padding:10px 14px">정규화 값 = (내 값 − 최솟값) ÷ (최댓값 − 최솟값)</p>
+    <p style="font-size:15px;color:var(--muted)">예: 키 170cm는 (170−150)÷(190−150) = <strong>0.5</strong> — "범위의 딱 중간"이라는 의미로 번역된다.</p>
+
+    <h3>그리고 시각화 — 청소가 끝나면 그린다</h3>
+    <div class="tbl-wrap"><table>
+      <tr><th>보고 싶은 것</th><th>어울리는 그래프</th></tr>
+      <tr><td>항목끼리 <strong>비교</strong></td><td>막대그래프 (2-1 설문 데모)</td></tr>
+      <tr><td>시간에 따른 <strong>변화</strong></td><td>선그래프 (2-4 주차별 데모)</td></tr>
+      <tr><td>두 속성의 <strong>관계</strong></td><td>산점도 (2-3 데모)</td></tr>
+      <tr><td>전체 속 <strong>비율</strong></td><td>원그래프</td></tr>
+    </table></div>
+    <div class="warn"><span class="t">🚨 오개념 주의보 — 시각화는 장식이 아니다</span>
+      표에서는 안 보이던 이상치·패턴·관계가 그래프에서는 <strong>한눈에 드러난다</strong>. 시각화는 보고서 꾸미기가 아니라 <mark>분석 도구</mark>다 — 위 이상치 데모에서도 빨간 막대는 표보다 그래프에서 훨씬 먼저 눈에 띈다.
+    </div>
+  </div>
+
+  <!-- ═══════════ 2-3 속성 간 관계 ═══════════ -->
+  <div class="card" id="c3">
+    <h2><span class="chip">2-3</span> 속성 간 관계 — 두 열을 같이 보면 보이는 것 🔗</h2>
+    <p class="lead">속성 하나는 사실을 말하고, 속성 <strong>둘의 관계</strong>는 이야기를 말한다.</p>
+    <p>매점 판매 데이터에 "그날 기온" 속성을 <strong>통합</strong>해 보자(1단원의 데이터 합치기!). 기온과 판매량을 산점도에 함께 찍으면, 점들의 <mark>배치 모양</mark>이 관계를 알려준다.</p>
+
+    <div class="demo">
+      <div class="demo-title">🎮 산점도 관계 탐험 — 점들이 움직인다 <span class="badge-live">LIVE</span></div>
+      <div class="btn-row" style="margin-bottom:4px">
+        <button class="btn ghost sc-btn on" data-mode="ice">🍦 기온 × 아이스크림</button>
+        <button class="btn ghost sc-btn" data-mode="hot">☕ 기온 × 핫초코</button>
+        <button class="btn ghost sc-btn" data-mode="none">📐 기온 × 수학 점수</button>
+      </div>
+      <div class="scatter-wrap">
+        <div class="axis-y" id="scY">판매량 ↑</div>
+        <div class="scatter" id="scatter"></div>
+        <div class="axis-x">기온 →</div>
+      </div>
+      <div class="demo-note" id="scNote">🍦 기온이 오를수록 판매량도 오른다 — 오른쪽 위로 향하는 <b>양의 관계</b>. 이 관계를 알면 내일 기온으로 준비 수량을 정할 수 있다!</div>
+    </div>
+
+    <ul class="list">
+      <li><strong>양의 관계</strong>: 한쪽이 커지면 다른 쪽도 커진다 (기온↑ 아이스크림↑) — 점들이 ↗ 방향</li>
+      <li><strong>음의 관계</strong>: 한쪽이 커지면 다른 쪽은 작아진다 (기온↑ 핫초코↓) — 점들이 ↘ 방향</li>
+      <li><strong>관계 없음</strong>: 아무 패턴이 없다 (기온과 수학 점수) — 점들이 흩어짐</li>
+    </ul>
+    <div class="warn"><span class="t">🚨 오개념 주의보 — 관계 ≠ 원인</span>
+      아이스크림 판매와 선풍기 판매도 함께 오르내리지만, 아이스크림이 선풍기를 팔아 주는 게 아니다 — 둘 뒤에 <strong>기온</strong>이라는 진짜 원인이 있을 뿐. <mark>관계가 보인다고 인과를 단정하지 말 것</mark>. (3단원에서 더 깊게 다룬다!)
+    </div>
+  </div>
+
+  <!-- ═══════════ 2-4 같은 데이터, 다른 분석 ═══════════ -->
+  <div class="card" id="c4">
+    <h2><span class="chip">2-4</span> 같은 데이터, 다른 분석 — 결론이 뒤집힌다 🔄</h2>
+    <p class="lead">분석 방법은 렌즈다. 렌즈를 바꾸면 <strong>같은 데이터에서 다른 그림</strong>이 보인다.</p>
+    <p>매점의 4주 치 판매 기록(컵라면 vs 샌드위치)을 <strong>두 가지 방법</strong>으로 분석해 보자.</p>
+
+    <div class="demo">
+      <div class="demo-title">🎮 렌즈 바꿔 보기 <span class="badge-live">LIVE</span></div>
+      <div class="btn-row" style="margin-bottom:8px">
+        <button class="btn ghost view-btn on" data-view="total">① 4주 합계로 보기</button>
+        <button class="btn ghost view-btn" data-view="weekly">② 주차별 흐름으로 보기</button>
+      </div>
+      <div class="legend"><span><span class="sw" style="background:var(--c1)"></span>컵라면</span><span><span class="sw" style="background:var(--c2)"></span>샌드위치</span></div>
+
+      <div class="view show" id="view-total">
+        <div class="bars g-pair">
+          <div class="bar-row"><span class="bar-name">컵라면</span><div class="bar-track"><div class="bar-fill f1" style="width:100%"></div></div><span class="bar-val">170개</span></div>
+          <div class="bar-row"><span class="bar-name">샌드위치</span><div class="bar-track"><div class="bar-fill f2" style="width:73%"></div></div><span class="bar-val">124개</span></div>
+        </div>
+      </div>
+
+      <div class="view" id="view-weekly">
+        <div class="g-week"><div class="gw-label">1주차</div><div class="g-pair">
+          <div class="bar-row"><span class="bar-name">컵라면</span><div class="bar-track"><div class="bar-fill f1" style="width:100%"></div></div><span class="bar-val">50</span></div>
+          <div class="bar-row"><span class="bar-name">샌드위치</span><div class="bar-track"><div class="bar-fill f2" style="width:44%"></div></div><span class="bar-val">22</span></div>
+        </div></div>
+        <div class="g-week"><div class="gw-label">2주차</div><div class="g-pair">
+          <div class="bar-row"><span class="bar-name">컵라면</span><div class="bar-track"><div class="bar-fill f1" style="width:92%"></div></div><span class="bar-val">46</span></div>
+          <div class="bar-row"><span class="bar-name">샌드위치</span><div class="bar-track"><div class="bar-fill f2" style="width:56%"></div></div><span class="bar-val">28</span></div>
+        </div></div>
+        <div class="g-week"><div class="gw-label">3주차</div><div class="g-pair">
+          <div class="bar-row"><span class="bar-name">컵라면</span><div class="bar-track"><div class="bar-fill f1" style="width:80%"></div></div><span class="bar-val">40</span></div>
+          <div class="bar-row"><span class="bar-name">샌드위치</span><div class="bar-track"><div class="bar-fill f2" style="width:68%"></div></div><span class="bar-val">34</span></div>
+        </div></div>
+        <div class="g-week"><div class="gw-label">4주차</div><div class="g-pair">
+          <div class="bar-row"><span class="bar-name">컵라면</span><div class="bar-track"><div class="bar-fill f1" style="width:68%"></div></div><span class="bar-val">34</span></div>
+          <div class="bar-row"><span class="bar-name">샌드위치</span><div class="bar-track"><div class="bar-fill f2" style="width:80%"></div></div><span class="bar-val">40</span></div>
+        </div></div>
+      </div>
+
+      <div class="demo-note" id="viewNote">📊 합계 렌즈의 결론: <b>"컵라면 압승(170 vs 124), 컵라면을 더 준비하자."</b> …과연 그럴까? 렌즈를 바꿔 보자.</div>
+    </div>
+
+    <div class="tip"><span class="t">💡 그래서 규칙 — 분석은 두 가지 이상으로</span>
+      합계 렌즈는 "지금까지의 챔피언"을, 흐름 렌즈는 "다음 달의 챔피언"을 보여줬다. 어느 한쪽만 보면 절반의 진실이다.
+      같은 데이터에 <strong>서로 다른 분석 방법을 적용해 결과를 비교</strong>하는 것 — 4단원 프로젝트의 필수 규칙이기도 하다.
+    </div>
+  </div>
+
+  <!-- ═══════════ 퀴즈 ═══════════ -->
+  <details class="acc" id="quiz">
+    <summary>📝 2단원 개념 확인 퀴즈</summary>
+    <div class="acc-body">
+      <p class="quiz-status" id="quizStatus"></p>
+      <div id="quizWrap"></div>
+    </div>
+  </details>
+
+</main>
+
+<footer><span class="series">데이터 과학 시리즈 2/4</span> · 데이터 준비와 분석 · 단일 HTML · 오프라인 실행</footer>
+
+<script>
+'use strict';
+
+/* ==========================================================
+   데모 1 — 설문 시뮬레이터 (편향 체험)
+   ========================================================== */
+(function () {
+  const DATA = {
+    soccer: { cap: '⚽ 축구부 30명의 응답', vals: { '축구': 21, '피구': 4, '이어달리기': 3, 'OX퀴즈': 2 }, unit: 30,
+      note: '축구부에게 물으니 <b>축구 70%</b>. 당연한 결과 아닐까? 이 표본은 전교생을 대표하지 못한다 — <b>표본 편향</b>이다.' },
+    book: { cap: '📚 도서부 30명의 응답', vals: { '축구': 3, '피구': 8, '이어달리기': 6, 'OX퀴즈': 13 }, unit: 30,
+      note: '이번엔 <b>OX퀴즈 43%</b>가 1등?! 같은 질문인데 대상만 바꿨더니 결론이 뒤집혔다. 어느 쪽도 "전교생의 답"은 아니다.' },
+    random: { cap: '🎲 전교생 무작위 100명의 응답', vals: { '축구': 22, '피구': 35, '이어달리기': 25, 'OX퀴즈': 18 }, unit: 100,
+      note: '무작위 100명에게 물으니 <b>피구 35%</b>. 특정 집단의 목소리가 과장되지 않은, <b>대표성 있는</b> 결과에 가장 가깝다. ✅' },
+  };
+  const bars = document.getElementById('surveyBars');
+  const note = document.getElementById('surveyNote');
+  const cap = document.getElementById('surveyCap');
+  document.querySelectorAll('.survey-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.survey-btn').forEach(b => b.classList.toggle('on', b === btn));
+      const d = DATA[btn.dataset.who];
+      bars.style.display = 'block';
+      cap.textContent = d.cap + ' (명)';
+      const max = Math.max.apply(null, Object.values(d.vals));
+      bars.querySelectorAll('.bar-row').forEach(row => {
+        const v = d.vals[row.dataset.k];
+        row.classList.toggle('top', v === max);
+        row.querySelector('.bar-fill').style.width = (v / max * 100) + '%';
+        row.querySelector('.bar-val').textContent = v + '명 (' + Math.round(v / d.unit * 100) + '%)';
+      });
+      note.innerHTML = d.note;
+    });
+  });
+})();
+
+/* ==========================================================
+   데모 2 — 이상치 제거
+   ========================================================== */
+(function () {
+  const HEIGHTS = [162, 158, 171, 175, 166, 169, 1850, 173, 160, 178]; // 1850 = 185.0 입력 실수
+  const bars = document.getElementById('outBars');
+  const avgEl = document.getElementById('outAvg');
+  const tagEl = document.getElementById('outAvgTag');
+  const note = document.getElementById('outNote');
+  const btn = document.getElementById('outBtn');
+  const reset = document.getElementById('outReset');
+  function render(withOutlier) {
+    const data = withOutlier ? HEIGHTS : HEIGHTS.filter(h => h < 1000);
+    const max = Math.max.apply(null, data);
+    bars.innerHTML = data.map((h, i) =>
+      '<div class="bar-row' + (h > 1000 ? ' out' : '') + '">' +
+      '<span class="bar-name">학생 ' + (i + 1) + '</span>' +
+      '<div class="bar-track"><div class="bar-fill" style="width:' + (h / max * 100) + '%"></div></div>' +
+      '<span class="bar-val">' + h + 'cm</span></div>'
+    ).join('');
+    const avg = data.reduce((s, h) => s + h, 0) / data.length;
+    avgEl.textContent = avg.toFixed(1) + 'cm';
+    avgEl.style.color = withOutlier ? 'var(--bad)' : 'var(--ok)';
+    tagEl.textContent = withOutlier ? '…우리 반이 거인 학급?!' : '— 이제 말이 된다 ✅';
+  }
+  render(true);
+  btn.addEventListener('click', () => {
+    render(false); btn.disabled = true; reset.disabled = false;
+    note.innerHTML = '🧹 이상치 하나를 제거하자 평균이 <b>336.2cm → 168.0cm</b>로 돌아왔다. 값 하나가 평균을 <b>2배</b>로 부풀렸던 것! 단, 지우기 전에 반드시 물을 것 — <b>"오류인가, 진짜 특이한 값인가?"</b> (농구 선수의 205cm는 오류가 아니다.)';
+  });
+  reset.addEventListener('click', () => {
+    render(true); btn.disabled = false; reset.disabled = true;
+    note.textContent = '빨간 막대(1850cm)가 평균을 어디까지 끌어올렸는지 보자. 제거하면?';
+  });
+})();
+
+/* ==========================================================
+   데모 3 — 산점도 관계 탐험 (점 12개가 이동)
+   ========================================================== */
+(function () {
+  const MODES = {
+    ice: { y: '판매량 ↑', pts: [[8,16],[14,24],[21,30],[29,38],[37,44],[45,52],[54,57],[61,66],[69,71],[77,79],[85,84],[92,90]],
+      note: '🍦 기온이 오를수록 판매량도 오른다 — 오른쪽 위로 향하는 <b>양의 관계</b>. 이 관계를 알면 내일 기온으로 준비 수량을 정할 수 있다!' },
+    hot: { y: '판매량 ↑', pts: [[8,88],[14,82],[21,74],[29,68],[37,60],[45,54],[54,46],[61,40],[69,32],[77,26],[85,20],[92,12]],
+      note: '☕ 기온이 오를수록 판매량이 내려간다 — 오른쪽 아래로 향하는 <b>음의 관계</b>. 관계는 "함께 커지는 것"만이 아니다!' },
+    none: { y: '수학 점수 ↑', pts: [[10,48],[17,22],[24,76],[32,40],[39,64],[47,14],[54,84],[61,34],[69,58],[76,20],[84,70],[91,44]],
+      note: '📐 점들이 아무 방향 없이 흩어져 있다 — <b>관계 없음</b>. 기온으로 수학 점수를 예측할 수는 없다. 관계가 "없다"는 것을 아는 것도 소중한 분석 결과다!' },
+  };
+  const sc = document.getElementById('scatter');
+  const note = document.getElementById('scNote');
+  const yLabel = document.getElementById('scY');
+  for (let i = 0; i < 12; i++) {
+    const d = document.createElement('div');
+    d.className = 'dot';
+    sc.appendChild(d);
+  }
+  function setMode(mode) {
+    const m = MODES[mode];
+    sc.querySelectorAll('.dot').forEach((d, i) => {
+      d.style.left = m.pts[i][0] + '%';
+      d.style.bottom = m.pts[i][1] + '%';
+    });
+    yLabel.textContent = m.y;
+    note.innerHTML = m.note;
+    document.querySelectorAll('.sc-btn').forEach(b => b.classList.toggle('on', b.dataset.mode === mode));
+  }
+  document.querySelectorAll('.sc-btn').forEach(b => b.addEventListener('click', () => setMode(b.dataset.mode)));
+  setMode('ice');
+})();
+
+/* ==========================================================
+   데모 4 — 렌즈 바꿔 보기 (합계 vs 주차별)
+   ========================================================== */
+(function () {
+  const NOTES = {
+    total: '📊 합계 렌즈의 결론: <b>"컵라면 압승(170 vs 124), 컵라면을 더 준비하자."</b> …과연 그럴까? 렌즈를 바꿔 보자.',
+    weekly: '📈 흐름 렌즈의 결론: 컵라면은 <b>매주 하락</b>(50→34), 샌드위치는 <b>매주 상승</b>(22→40), 4주차엔 이미 역전! 결론이 정반대다 — <b>"다음 달엔 샌드위치를 늘리자."</b>',
+  };
+  const note = document.getElementById('viewNote');
+  document.querySelectorAll('.view-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const v = btn.dataset.view;
+      document.querySelectorAll('.view-btn').forEach(b => b.classList.toggle('on', b === btn));
+      document.querySelectorAll('.view').forEach(el => el.classList.toggle('show', el.id === 'view-' + v));
+      note.innerHTML = NOTES[v];
+    });
+  });
+})();
+
+/* ==========================================================
+   퀴즈 엔진 (시리즈 공통)
+   ========================================================== */
+const QUIZ = [
+  { q: '급식 만족도 조사를 "매점 앞에서만" 진행했다. 이 조사의 가장 큰 문제는?',
+    opts: ['응답 수가 너무 많다', '표본이 전체 학생을 대표하지 못한다', '질문이 너무 어렵다', '조사 시간이 짧다'], ans: 1,
+    exp: '매점 앞에 있는 학생은 이미 "급식 대신 매점을 택했을 가능성"이 높은 집단이다. 표본이 전체를 대표하지 못하는 표본 편향 — 무작위 추출이 기본 해결책이다.' },
+  { q: '키 데이터에 1850cm가 섞여 있다. 가장 먼저 해야 할 일은?',
+    opts: ['무조건 삭제한다', '평균에 그대로 포함시킨다', '오류인지 실제 값인지 확인한다', '데이터 전체를 버린다'], ans: 2,
+    exp: '이상치의 제1원칙은 "확인 먼저". 185.0의 입력 실수라면 고치거나 제거하지만, 진짜 특이한 값(농구부의 205cm)이라면 함부로 지우면 안 된다.' },
+  { q: '수학 점수(0~100)와 키(150~190cm)를 함께 분석하기 전에 정규화가 필요한 이유는?',
+    opts: ['데이터 용량을 줄이려고', '두 속성의 범위(눈금)가 달라 그대로는 비교할 수 없어서', '그래프 색을 통일하려고', '결측치를 없애려고'], ans: 1,
+    exp: '정규화는 서로 다른 범위의 속성들을 0~1 같은 공통 눈금으로 바꿔 공정하게 비교·계산하게 하는 전처리다. (값−최소)÷(최대−최소).' },
+  { q: '산점도에서 점들이 오른쪽 아래로(↘) 향하며 늘어서 있다. 두 속성의 관계는?',
+    opts: ['양의 관계', '음의 관계', '관계 없음', '인과 관계가 증명됨'], ans: 1,
+    exp: '한쪽이 커질 때 다른 쪽이 작아지는 음의 관계다 (기온↑ 핫초코↓). 그리고 어떤 모양이든 산점도만으로 "원인"까지 증명되지는 않는다는 것도 기억!' },
+  { q: '같은 판매 데이터를 "합계"와 "주차별 흐름" 두 방법으로 분석하는 이유는?',
+    opts: ['보고서 분량을 늘리려고', '방법마다 보여주는 것이 달라, 비교해야 온전한 결론이 나와서', '컴퓨터 성능을 시험하려고', '한 방법은 항상 틀리기 때문에'], ans: 1,
+    exp: '합계는 "지금까지의 1등"을, 흐름은 "추세와 다음 달"을 보여줬다. 렌즈마다 보이는 진실이 달라서, 두 가지 이상의 방법으로 분석해 결과를 비교하는 것이 원칙이다.' },
+];
+
+let answered = 0;
+(function renderQuiz() {
+  const wrap = document.getElementById('quizWrap');
+  QUIZ.forEach((item, qi) => {
+    const div = document.createElement('div');
+    div.className = 'q-item';
+    const qt = document.createElement('div');
+    qt.className = 'q-text';
+    qt.innerHTML = '<span class="qnum">' + (qi + 1) + '</span>' + item.q;
+    div.appendChild(qt);
+    const opts = document.createElement('div');
+    opts.className = 'q-opts';
+    const exp = document.createElement('div');
+    exp.className = 'q-exp';
+    exp.innerHTML = '💡 ' + item.exp;
+    item.opts.forEach((label, oi) => {
+      const b = document.createElement('button');
+      b.className = 'q-opt';
+      b.textContent = ['①', '②', '③', '④'][oi] + ' ' + label;
+      b.addEventListener('click', () => {
+        if (b.disabled) return;
+        opts.querySelectorAll('.q-opt').forEach(o => o.disabled = true);
+        if (oi === item.ans) { b.classList.add('correct'); b.textContent += '  ✅ 정답!'; }
+        else { b.classList.add('wrong'); b.textContent += '  ❌'; opts.children[item.ans].classList.add('correct'); }
+        exp.classList.add('show');
+        answered++;
+        updateStatus();
+      });
+      opts.appendChild(b);
+    });
+    div.appendChild(opts);
+    div.appendChild(exp);
+    wrap.appendChild(div);
+  });
+  updateStatus();
+})();
+function updateStatus() {
+  const el = document.getElementById('quizStatus');
+  el.innerHTML = answered >= QUIZ.length
+    ? '🎉 <b>퀴즈 완료!</b> 재료 준비는 끝났다. 다음은 3단원 — 데이터 모델링과 평가!'
+    : '진행: <b>' + answered + '</b> / ' + QUIZ.length + ' 문항 — 보기를 클릭하면 바로 채점된다!';
+}
+</script>
+</body>
+</html>

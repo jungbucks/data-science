@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>데이터 과학 1단원 — 데이터 과학의 이해</title>
+<style>
+/* ==========================================================
+   데이터 과학 시리즈 공통 (DESIGN_SPEC.md) — 1단원: 시안
+   ========================================================== */
+:root {
+  /* 단원 액센트 — 단원 바꿀 때 이 3줄만 교체 */
+  --ua: #0891B2;
+  --ua-dark: #0E7490;
+  --ua-soft: #E8F7FB;
+  /* 중립 */
+  --bg: #FAFBFD;
+  --card: #FFFFFF;
+  --ink: #17263B;
+  --muted: #5D6B7E;
+  --line: #E4E9F0;
+  /* 차트 카테고리 5색 (고정 순서 — DESIGN_SPEC 검증 완료) */
+  --c1: #2563EB; --c2: #D97706; --c3: #0891B2; --c4: #7C3AED; --c5: #DB2777;
+  /* 시맨틱 */
+  --ok: #0E9F6E; --bad: #E02424;
+  --radius: 18px;
+  --shadow: 0 3px 16px rgba(23, 38, 59, .07);
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'Pretendard Variable', Pretendard, 'Malgun Gothic', 'Noto Sans KR', -apple-system, sans-serif;
+  background: var(--bg); color: var(--ink);
+  line-height: 1.75; font-size: 16.5px;
+}
+button:focus-visible, summary:focus-visible, a:focus-visible { outline: 3px solid var(--ua); outline-offset: 2px; }
+
+/* ---------- 헤더: 도트 산점 모티프 ---------- */
+header {
+  position: relative; text-align: center;
+  padding: 56px 20px 34px; overflow: hidden;
+  background: var(--card); border-bottom: 1px solid var(--line);
+}
+header::before { /* 흩뿌려진 데이터 점들 */
+  content: ''; position: absolute; inset: 0; pointer-events: none;
+  background:
+    radial-gradient(circle 5px at 12% 30%, var(--c1) 98%, transparent) ,
+    radial-gradient(circle 4px at 22% 68%, var(--c3) 98%, transparent),
+    radial-gradient(circle 6px at 31% 22%, var(--c2) 98%, transparent),
+    radial-gradient(circle 4px at 45% 80%, var(--c5) 98%, transparent),
+    radial-gradient(circle 5px at 63% 76%, var(--c4) 98%, transparent),
+    radial-gradient(circle 4px at 72% 24%, var(--c1) 98%, transparent),
+    radial-gradient(circle 6px at 84% 60%, var(--c3) 98%, transparent),
+    radial-gradient(circle 4px at 91% 32%, var(--c2) 98%, transparent);
+  opacity: .28;
+}
+.unit-badge {
+  display: inline-block; font-size: 13px; font-weight: 800; letter-spacing: .1em;
+  color: var(--ua-dark); background: var(--ua-soft); border: 1px solid var(--ua);
+  padding: 5px 16px; border-radius: 99px; margin-bottom: 16px;
+}
+h1 { font-size: clamp(30px, 5vw, 44px); font-weight: 900; letter-spacing: -.02em; line-height: 1.25; }
+h1 .ua { color: var(--ua-dark); }
+.sub { color: var(--muted); margin-top: 10px; font-size: 17px; }
+
+/* ---------- 미니 목차 ---------- */
+nav.toc {
+  display: flex; gap: 8px; flex-wrap: wrap; justify-content: center;
+  padding: 14px 20px; background: var(--card);
+  border-bottom: 1px solid var(--line);
+  position: sticky; top: 0; z-index: 50;
+}
+nav.toc a {
+  font-size: 14px; font-weight: 700; color: var(--muted); text-decoration: none;
+  padding: 7px 14px; border-radius: 99px; border: 1.5px solid var(--line);
+  transition: color .15s, border-color .15s, background .15s;
+}
+nav.toc a:hover { color: var(--ua-dark); border-color: var(--ua); background: var(--ua-soft); }
+
+/* ---------- 본문 & 카드 ---------- */
+main { max-width: 940px; margin: 0 auto; padding: 30px 20px 80px; }
+.card {
+  background: var(--card); border: 1px solid var(--line); border-radius: var(--radius);
+  box-shadow: var(--shadow); padding: 30px 30px 26px; margin-bottom: 26px;
+  scroll-margin-top: 70px;
+}
+h2 { font-size: 24px; font-weight: 900; letter-spacing: -.01em; margin-bottom: 8px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+h2 .chip { font-size: 12px; font-weight: 800; color: #fff; background: var(--ua); border-radius: 8px; padding: 3px 10px; flex-shrink: 0; }
+h3 { font-size: 18px; font-weight: 800; margin: 26px 0 8px; }
+h3::before { content: '📌 '; }
+p { margin: 8px 0; }
+.lead { color: var(--muted); font-size: 15.5px; margin-bottom: 12px; }
+strong { font-weight: 800; }
+mark { background: linear-gradient(transparent 55%, #BAE6FD 55%); color: inherit; padding: 0 2px; font-weight: 700; }
+ul.list, ol.list { padding-left: 24px; margin: 8px 0; }
+ul.list li, ol.list li { margin: 5px 0; }
+
+.tip, .warn { border-radius: 14px; padding: 15px 20px; margin: 16px 0; font-size: 15.5px; border: 1.5px solid; }
+.tip { background: var(--ua-soft); border-color: var(--ua); }
+.warn { background: #FDF2F2; border-color: #F8B4B4; }
+.tip .t, .warn .t { font-weight: 900; display: block; margin-bottom: 4px; }
+.tip .t { color: var(--ua-dark); }
+.warn .t { color: var(--bad); }
+
+/* ---------- 표 ---------- */
+.tbl-wrap { overflow-x: auto; margin: 14px 0; border-radius: 12px; border: 1px solid var(--line); }
+table { border-collapse: collapse; width: 100%; min-width: 480px; background: #fff; font-size: 15px; }
+th { background: var(--ink); color: #fff; font-weight: 800; padding: 10px 14px; text-align: left; font-size: 14px; }
+td { padding: 10px 14px; border-bottom: 1px solid var(--line); vertical-align: top; }
+tr:last-child td { border-bottom: none; }
+td.key, th.key { background: var(--ua-soft); font-weight: 800; color: var(--ua-dark); }
+th.key { color: #fff; background: var(--ua-dark); }
+
+/* ---------- 데이터 과학 사이클 ---------- */
+.cycle { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; justify-content: center; margin: 18px 0; }
+.cy-step {
+  background: var(--ua-soft); border: 1.5px solid var(--ua);
+  color: var(--ua-dark); font-weight: 800; font-size: 14.5px;
+  border-radius: 99px; padding: 8px 16px; white-space: nowrap;
+}
+.cy-arrow { color: var(--muted); font-weight: 900; }
+
+/* ---------- 데모 공통 ---------- */
+.demo { background: #F3F6FA; border: 2px dashed #C9D4E0; border-radius: 16px; padding: 22px; margin: 18px 0; }
+.demo-title { font-weight: 900; font-size: 15px; margin-bottom: 12px; }
+.badge-live {
+  font-size: 11px; color: #fff; background: var(--ua);
+  border-radius: 99px; padding: 2px 9px; margin-left: 6px; vertical-align: 2px;
+  animation: pulse 2s infinite;
+}
+@keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: .55; } }
+.btn {
+  font-family: inherit; font-size: 14.5px; font-weight: 800;
+  padding: 10px 18px; border-radius: 12px; cursor: pointer;
+  border: none; color: #fff; background: var(--ua);
+  box-shadow: 0 3px 10px rgba(8, 145, 178, .3);
+  transition: transform .15s, filter .15s;
+}
+.btn:hover { transform: translateY(-2px); filter: brightness(1.06); }
+.btn:active { transform: translateY(0) scale(.97); }
+.btn:disabled { opacity: .4; cursor: not-allowed; transform: none; }
+.btn.ghost { background: #fff; color: var(--ink); border: 2px solid var(--line); box-shadow: none; }
+.btn-row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 12px; }
+.demo-note {
+  margin-top: 14px; font-size: 15px; font-weight: 600;
+  background: #fff; border-radius: 12px; padding: 12px 16px;
+  border-left: 4px solid var(--ua); min-height: 46px;
+}
+
+/* ---------- 데모1: 매점 의사결정 + 막대 차트 ---------- */
+.snack-choices { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; margin: 8px 0 4px; }
+.snack-btn {
+  font-family: inherit; font-size: 15px; font-weight: 800; color: var(--ink);
+  background: #fff; border: 2px solid var(--line); border-radius: 14px;
+  padding: 14px 10px; cursor: pointer; transition: border-color .15s, transform .15s;
+}
+.snack-btn:hover:not(:disabled) { border-color: var(--ua); transform: translateY(-2px); }
+.snack-btn.picked { border-color: var(--ua); background: var(--ua-soft); }
+.snack-btn:disabled { cursor: default; opacity: .8; }
+.bars { margin: 16px 4px 4px; display: none; }
+.bars.show { display: block; }
+.bar-row { display: flex; align-items: center; gap: 10px; margin: 9px 0; }
+.bar-name { width: 90px; font-size: 14px; font-weight: 700; flex-shrink: 0; text-align: right; }
+.bar-track { flex: 1; height: 20px; background: #fff; border-radius: 4px; border: 1px solid var(--line); overflow: hidden; }
+.bar-fill {
+  height: 100%; width: 0; border-radius: 0 4px 4px 0;
+  background: #A5D8E6; transition: width .9s cubic-bezier(.22, 1, .36, 1);
+}
+.bar-row.top .bar-fill { background: var(--ua); }
+.bar-val { width: 52px; font-size: 14px; font-weight: 800; font-variant-numeric: tabular-nums; flex-shrink: 0; color: var(--ink); }
+
+/* ---------- 데모2: 정형/비정형 분류 게임 ---------- */
+.cls-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; margin-top: 4px; }
+.cls-item { background: #fff; border: 2px solid var(--line); border-radius: 14px; padding: 12px 14px; transition: border-color .2s; }
+.cls-item .ci-name { font-weight: 800; font-size: 15px; margin-bottom: 8px; }
+.cls-item .ci-btns { display: flex; gap: 6px; }
+.cls-item .ci-btns button {
+  flex: 1; font-family: inherit; font-size: 13px; font-weight: 700;
+  padding: 6px 4px; border-radius: 8px; border: 1.5px solid var(--line);
+  background: #fff; color: var(--muted); cursor: pointer; transition: all .15s;
+}
+.cls-item .ci-btns button:hover:not(:disabled) { border-color: var(--ua); color: var(--ua-dark); }
+.cls-item .ci-btns button:disabled { cursor: default; }
+.cls-item.right { border-color: var(--ok); background: #F0FBF7; }
+.cls-item.wrong { border-color: var(--bad); background: #FDF2F2; }
+.cls-item .ci-mark { font-size: 13px; font-weight: 800; margin-top: 6px; min-height: 20px; }
+.cls-item.right .ci-mark { color: var(--ok); }
+.cls-item.wrong .ci-mark { color: var(--bad); }
+
+/* ---------- 데모3: 데이터 합치기 ---------- */
+.join-stage { display: flex; gap: 14px; flex-wrap: wrap; align-items: flex-start; }
+.join-tbl { flex: 1; min-width: 210px; }
+.join-tbl h5 { font-size: 14px; font-weight: 900; margin-bottom: 6px; }
+.join-tbl table { min-width: 0; font-size: 14px; }
+#joinResult { display: none; margin-top: 16px; }
+#joinResult.show { display: block; animation: fadeUp .5s ease both; }
+@keyframes fadeUp { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+
+/* ---------- 직업 카드 ---------- */
+.job-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 12px; margin: 14px 0; }
+.job { background: #fff; border: 1.5px solid var(--line); border-radius: 14px; padding: 16px 18px; }
+.job .j-ico { font-size: 24px; margin-bottom: 6px; }
+.job h4 { font-size: 15px; font-weight: 800; margin-bottom: 4px; }
+.job p { font-size: 13.5px; color: var(--muted); margin: 0; line-height: 1.6; }
+
+/* ---------- 활동 박스 ---------- */
+.activity {
+  background: linear-gradient(0deg, var(--ua-soft), var(--ua-soft)) var(--card);
+  border: 1.5px solid var(--ua); border-radius: 14px; padding: 18px 22px; margin: 18px 0;
+}
+.activity .a-label { font-size: 12px; font-weight: 900; letter-spacing: .1em; color: var(--ua-dark); margin-bottom: 6px; }
+.activity p { font-size: 15.5px; margin: 4px 0; }
+
+/* ---------- 퀴즈 (시리즈 공통 엔진) ---------- */
+details.acc { border-radius: var(--radius); background: var(--card); box-shadow: var(--shadow); border: 1px solid var(--line); margin-bottom: 18px; overflow: hidden; }
+details.acc summary { cursor: pointer; list-style: none; padding: 20px 26px; font-weight: 900; font-size: 17px; display: flex; align-items: center; gap: 10px; }
+details.acc summary::-webkit-details-marker { display: none; }
+details.acc summary::after { content: '▼'; margin-left: auto; font-size: 12px; color: var(--ua); transition: transform .25s; }
+details.acc[open] summary::after { transform: rotate(180deg); }
+details.acc summary:hover { background: var(--ua-soft); }
+details.acc .acc-body { padding: 4px 26px 26px; }
+.q-item { margin-bottom: 24px; }
+.q-text { font-weight: 800; margin-bottom: 10px; }
+.q-text .qnum { display: inline-flex; align-items: center; justify-content: center; width: 26px; height: 26px; border-radius: 50%; margin-right: 8px; background: var(--ua); color: #fff; font-size: 13px; font-weight: 900; }
+.q-opts { display: grid; gap: 8px; }
+.q-opt { font-family: inherit; text-align: left; font-size: 15px; font-weight: 600; padding: 11px 16px; border-radius: 12px; cursor: pointer; border: 2px solid var(--line); background: #fff; color: var(--ink); transition: all .18s; }
+.q-opt:hover:not(:disabled) { border-color: var(--ua); background: var(--ua-soft); transform: translateX(4px); }
+.q-opt.correct { border-color: var(--ok); background: #F0FBF7; font-weight: 800; }
+.q-opt.wrong { border-color: var(--bad); background: #FDF2F2; animation: shake .35s; }
+.q-opt:disabled { cursor: default; opacity: .75; }
+.q-opt.correct:disabled, .q-opt.wrong:disabled { opacity: 1; }
+@keyframes shake { 0%,100% { transform: translateX(0); } 25% { transform: translateX(-6px); } 75% { transform: translateX(6px); } }
+.q-exp { display: none; margin-top: 10px; font-size: 14.5px; background: var(--ua-soft); border: 1.5px solid var(--ua); border-radius: 12px; padding: 12px 16px; }
+.q-exp.show { display: block; animation: fadeUp .3s both; }
+.quiz-status { font-size: 14px; font-weight: 800; color: var(--muted); margin-bottom: 16px; }
+.quiz-status b { color: var(--ua-dark); }
+
+footer { text-align: center; color: var(--muted); font-size: 13.5px; padding: 22px; }
+footer .series { font-weight: 800; color: var(--ua-dark); }
+
+@media (max-width: 640px) {
+  body { font-size: 15.5px; }
+  .card { padding: 22px 18px; }
+  .bar-name { width: 70px; font-size: 13px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <span class="unit-badge">데이터 과학 · 1단원 / 4</span>
+  <h1>데이터 과학의 <span class="ua">이해</span></h1>
+  <p class="sub">감이 아니라 데이터로 — 세상을 읽는 새로운 과학 🔍</p>
+</header>
+
+<nav class="toc">
+  <a href="#c1">1-1 데이터 과학이란</a>
+  <a href="#c2">1-2 정형 vs 비정형</a>
+  <a href="#c3">1-3 데이터베이스와 통합</a>
+  <a href="#c4">1-4 세상과 직업</a>
+  <a href="#quiz">📝 퀴즈</a>
+</nav>
+
+<main>
+
+  <!-- ═══════════ 1-1 데이터 과학이란 ═══════════ -->
+  <div class="card" id="c1">
+    <h2><span class="chip">1-1</span> 데이터 과학이란 — 감 대신 데이터로 결정하기 🎯</h2>
+    <p class="lead">데이터에서 <strong>질문의 답</strong>을 찾아내고, 그 답으로 <strong>더 나은 결정</strong>을 내리는 과학.</p>
+    <p>"이번 축제 부스에서 뭘 팔아야 잘 팔릴까?" — 예전에는 <strong>경험과 감</strong>으로 정했다. 데이터 과학은 이 질문에 <mark>작년 판매 기록, 설문 응답, 날씨 데이터</mark> 같은 근거로 답한다. 이렇게 데이터를 근거로 판단하는 것을 <strong>데이터 기반 의사 결정</strong>이라고 한다.</p>
+
+    <h3>데이터 과학의 과정 — 이 수업 전체의 지도</h3>
+    <div class="cycle">
+      <span class="cy-step">❓ 문제 정의</span><span class="cy-arrow">→</span>
+      <span class="cy-step">📥 데이터 수집</span><span class="cy-arrow">→</span>
+      <span class="cy-step">🧹 정리(전처리)</span><span class="cy-arrow">→</span>
+      <span class="cy-step">📊 분석·모델링</span><span class="cy-arrow">→</span>
+      <span class="cy-step">💡 결론 → 행동</span>
+    </div>
+    <p style="text-align:center;font-size:14px;color:var(--muted)">수집·정리는 <strong>2단원</strong>, 분석·모델링은 <strong>3단원</strong>, 전 과정을 직접 해 보는 게 <strong>4단원 프로젝트</strong>다.</p>
+
+    <div class="demo">
+      <div class="demo-title">🎮 매점 사장이 되어 보자 <span class="badge-live">LIVE</span></div>
+      <p style="font-size:15px">다음 주 <strong>화요일</strong>, 어떤 간식을 가장 많이 준비할까? 먼저 <strong>감으로</strong> 하나를 골라 보자.</p>
+      <div class="snack-choices" id="snackChoices">
+        <button class="snack-btn" data-snack="핫도그">🌭 핫도그</button>
+        <button class="snack-btn" data-snack="샌드위치">🥪 샌드위치</button>
+        <button class="snack-btn" data-snack="컵라면">🍜 컵라면</button>
+        <button class="snack-btn" data-snack="초코우유">🥛 초코우유</button>
+      </div>
+      <div class="bars" id="snackBars" aria-hidden="true">
+        <p style="font-size:13.5px;font-weight:800;color:var(--muted);margin-bottom:2px">📊 지난 4주 화요일 평균 판매량 (개)</p>
+        <div class="bar-row top"><span class="bar-name">🍜 컵라면</span><div class="bar-track"><div class="bar-fill" data-w="100"></div></div><span class="bar-val">42</span></div>
+        <div class="bar-row"><span class="bar-name">🌭 핫도그</span><div class="bar-track"><div class="bar-fill" data-w="74"></div></div><span class="bar-val">31</span></div>
+        <div class="bar-row"><span class="bar-name">🥪 샌드위치</span><div class="bar-track"><div class="bar-fill" data-w="43"></div></div><span class="bar-val">18</span></div>
+        <div class="bar-row"><span class="bar-name">🥛 초코우유</span><div class="bar-track"><div class="bar-fill" data-w="29"></div></div><span class="bar-val">12</span></div>
+      </div>
+      <div class="demo-note" id="snackNote">간식을 하나 고르면, 그다음에 진짜 판매 데이터가 공개된다!</div>
+    </div>
+
+    <div class="tip"><span class="t">💡 그런데 만약 다음 주 화요일이 소풍날이라면?</span>
+      매점에 올 학생이 없으니 데이터의 예측은 빗나간다. 데이터 기반 의사 결정은 <strong>"데이터 + 상황(맥락)"</strong>을 함께 보는 것이지, 숫자를 맹신하는 게 아니다.
+    </div>
+  </div>
+
+  <!-- ═══════════ 1-2 정형 vs 비정형 ═══════════ -->
+  <div class="card" id="c2">
+    <h2><span class="chip">1-2</span> 정형 vs 비정형 — 표에 담기는가? 📋</h2>
+    <p class="lead">구분 기준은 딱 하나 — <strong>행과 열이 있는 표에 바로 담을 수 있는가?</strong></p>
+    <ul class="list">
+      <li><strong>정형 데이터</strong>: 표(행 × 열)에 딱 들어맞는 데이터. 성적표, 출석부, 판매 기록. 컴퓨터가 <mark>바로 계산할 수 있다</mark>.</li>
+      <li><strong>비정형 데이터</strong>: 정해진 틀이 없는 데이터. 사진, 영상, 음성, 댓글 글. 전 세계 데이터의 <strong>약 80%</strong>가 이쪽이고, 분석하려면 먼저 숫자로 바꾸는 가공이 필요하다.</li>
+      <li>그 중간의 <strong>반정형</strong>도 있다 — 해시태그가 달린 게시물처럼, 틀이 느슨하게 있는 경우.</li>
+    </ul>
+
+    <div class="demo">
+      <div class="demo-title">🎮 분류 챌린지 — 정형일까, 비정형일까? <span class="badge-live">LIVE</span></div>
+      <p style="font-size:15px">8개 데이터를 직접 분류해 보자. 점수: <strong id="clsScore">0 / 8</strong></p>
+      <div class="cls-grid" id="clsGrid"></div>
+      <div class="demo-note" id="clsNote">각 카드에서 [정형] 또는 [비정형] 버튼을 눌러 분류하자!</div>
+    </div>
+
+    <h3>같은 데이터도 "속성"을 보면 가치가 보인다</h3>
+    <p>정형 데이터의 열 하나하나를 <strong>속성(attribute)</strong>이라고 한다. 배달 앱의 주문 데이터를 속성별로 뜯어 보면:</p>
+    <div class="tbl-wrap"><table>
+      <tr><th>속성</th><th>이 속성에서 캘 수 있는 가치</th></tr>
+      <tr><td><strong>주문 시간</strong></td><td>피크 시간대 예측 → 배달 기사 배치 최적화</td></tr>
+      <tr><td><strong>배달 주소</strong></td><td>주문 밀집 지역 발견 → 새 매장 위치 결정</td></tr>
+      <tr><td><strong>주문 메뉴</strong></td><td>유행 메뉴 분석 → 신메뉴 개발</td></tr>
+      <tr><td><strong>결제 금액</strong></td><td>객단가 분석 → 할인 쿠폰 전략</td></tr>
+    </table></div>
+    <div class="tip"><span class="t">💡 데이터의 잠재적 가치</span>
+      데이터는 <strong>모여 있을 때</strong>보다 <strong>"이 속성으로 무슨 질문에 답할 수 있지?"</strong>라고 물을 때 가치가 드러난다. 같은 주문 기록도 시간 속성으로 보면 운영 자료, 주소 속성으로 보면 입지 자료가 된다.
+    </div>
+  </div>
+
+  <!-- ═══════════ 1-3 데이터베이스와 통합 ═══════════ -->
+  <div class="card" id="c3">
+    <h2><span class="chip">1-3</span> 데이터베이스 — 흩어진 표를 합치면 새 답이 나온다 🔑</h2>
+    <p class="lead">데이터셋(표) 하나하나가 모여 <strong>데이터베이스(DB)</strong>가 된다.</p>
+    <p>우리 학교를 생각해 보자. 학생 명단, 성적, 도서 대출 기록, 급식 신청 — 각각이 <strong>데이터셋</strong>이고, 이것들을 체계적으로 모아 관리하는 창고가 <strong>데이터베이스</strong>다. 그런데 진짜 재미있는 일은 <mark>서로 다른 데이터셋을 합칠 때</mark> 일어난다.</p>
+
+    <div class="demo">
+      <div class="demo-title">🎮 데이터 합치기 — 공통 열쇠를 찾아라 <span class="badge-live">LIVE</span></div>
+      <p style="font-size:15px">두 표는 따로 보면 평범하다. 그런데 <strong>"1반 학생들은 어떤 책을 읽을까?"</strong>라는 질문에 답하려면?</p>
+      <div class="join-stage">
+        <div class="join-tbl">
+          <h5>📋 학생 명단</h5>
+          <div class="tbl-wrap"><table>
+            <tr><th class="key">학번</th><th>이름</th><th>반</th></tr>
+            <tr><td class="key">10101</td><td>김민준</td><td>1반</td></tr>
+            <tr><td class="key">10102</td><td>이서연</td><td>1반</td></tr>
+            <tr><td class="key">10201</td><td>박지훈</td><td>2반</td></tr>
+          </table></div>
+        </div>
+        <div class="join-tbl">
+          <h5>📚 도서 대출 기록</h5>
+          <div class="tbl-wrap"><table>
+            <tr><th class="key">학번</th><th>빌린 책</th></tr>
+            <tr><td class="key">10102</td><td>파이썬 첫걸음</td></tr>
+            <tr><td class="key">10101</td><td>데이터로 보는 세상</td></tr>
+            <tr><td class="key">10102</td><td>미래 직업 대탐험</td></tr>
+          </table></div>
+        </div>
+      </div>
+      <div class="btn-row">
+        <button class="btn" id="joinBtn">🔑 학번으로 두 표 합치기</button>
+        <button class="btn ghost" id="joinReset" disabled>↺ 처음부터</button>
+      </div>
+      <div id="joinResult">
+        <h5 style="font-size:14px;font-weight:900;margin-bottom:6px">✨ 합쳐진 표 — 이제 "누가 어떤 책을"이 보인다!</h5>
+        <div class="tbl-wrap"><table>
+          <tr><th class="key">학번</th><th>이름</th><th>반</th><th>빌린 책</th></tr>
+          <tr><td class="key">10101</td><td>김민준</td><td>1반</td><td>데이터로 보는 세상</td></tr>
+          <tr><td class="key">10102</td><td>이서연</td><td>1반</td><td>파이썬 첫걸음</td></tr>
+          <tr><td class="key">10102</td><td>이서연</td><td>1반</td><td>미래 직업 대탐험</td></tr>
+        </table></div>
+      </div>
+      <div class="demo-note" id="joinNote">버튼을 눌러 두 표를 합쳐 보자. 무엇이 열쇠 역할을 할까?</div>
+    </div>
+
+    <div class="warn"><span class="t">🚨 오개념 주의보 — 아무 표나 합칠 수 있는 게 아니다</span>
+      두 표를 합치려면 <strong>공통 속성(열쇠, key)</strong>이 있어야 한다. 위에서는 <mark>학번</mark>이 열쇠였다.
+      만약 대출 기록에 학번 대신 "별명"만 적혀 있었다면? 같은 학생인지 확인할 방법이 없어 통합은 실패한다.
+      <strong>분석 가능한 형태로 통합한다</strong>는 건 이렇게 데이터를 잇는 열쇠를 설계한다는 뜻이다.
+    </div>
+  </div>
+
+  <!-- ═══════════ 1-4 세상과 직업 ═══════════ -->
+  <div class="card" id="c4">
+    <h2><span class="chip">1-4</span> 데이터가 바꾸는 세상, 그리고 나의 진로 🌏</h2>
+    <p class="lead">데이터는 이미 우리의 하루를 설계하고 있다.</p>
+    <ul class="list">
+      <li>📱 <strong>추천 알고리즘</strong> — 유튜브·넷플릭스는 내 시청 데이터로 다음 영상을 고른다. (내가 고르는 걸까, 데이터가 고르는 걸까?)</li>
+      <li>🗺️ <strong>실시간 내비게이션</strong> — 수많은 차량의 위치 데이터가 모여 "지금 가장 빠른 길"이 계산된다.</li>
+      <li>🦠 <strong>감염병 대응</strong> — 확진자 이동·검사 데이터로 확산을 예측하고 병상을 배치했다.</li>
+    </ul>
+
+    <h3>데이터를 다루는 직업들</h3>
+    <div class="job-grid">
+      <div class="job"><div class="j-ico">🔬</div><h4>데이터 과학자</h4><p>질문을 세우고 모델을 만들어 데이터에서 답을 찾는 사람</p></div>
+      <div class="job"><div class="j-ico">📊</div><h4>데이터 분석가</h4><p>데이터를 분석·시각화해 회사의 의사 결정을 돕는 사람</p></div>
+      <div class="job"><div class="j-ico">🛠️</div><h4>데이터 엔지니어</h4><p>데이터가 잘 모이고 흐르도록 파이프라인을 만드는 사람</p></div>
+      <div class="job"><div class="j-ico">⚽</div><h4>스포츠 데이터 분석가</h4><p>선수의 움직임 데이터로 전술과 훈련을 설계하는 사람</p></div>
+    </div>
+    <p>더 중요한 사실 — <strong>데이터 직군이 아니어도</strong> 데이터는 무기가 된다. 환자 데이터를 읽는 의사, 판매 데이터로 전략을 짜는 마케터, 통계로 기사를 쓰는 기자. <mark>어떤 진로를 택하든 그 분야의 데이터가 쌓이고 있다</mark>.</p>
+
+    <div class="activity">
+      <div class="a-label">✍️ 생각해 보기 (수업 활동)</div>
+      <p>① 내가 관심 있는 진로(분야)에서는 <strong>어떤 데이터</strong>가 쌓일까?</p>
+      <p>② 그 데이터로 답할 수 있는 <strong>질문 하나</strong>를 만들어 보자. (예: 제과사 → "요일별 빵 판매 데이터로 언제 무엇을 구울지 정할 수 있을까?")</p>
+    </div>
+  </div>
+
+  <!-- ═══════════ 퀴즈 ═══════════ -->
+  <details class="acc" id="quiz">
+    <summary>📝 1단원 개념 확인 퀴즈</summary>
+    <div class="acc-body">
+      <p class="quiz-status" id="quizStatus"></p>
+      <div id="quizWrap"></div>
+    </div>
+  </details>
+
+</main>
+
+<footer><span class="series">데이터 과학 시리즈 1/4</span> · 데이터 과학의 이해 · 단일 HTML · 오프라인 실행</footer>
+
+<script>
+'use strict';
+
+/* ==========================================================
+   데모 1 — 매점 의사결정
+   ========================================================== */
+(function () {
+  const best = '컵라면';
+  const note = document.getElementById('snackNote');
+  const bars = document.getElementById('snackBars');
+  document.querySelectorAll('.snack-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.snack-btn').forEach(b => b.disabled = true);
+      btn.classList.add('picked');
+      bars.classList.add('show');
+      bars.setAttribute('aria-hidden', 'false');
+      requestAnimationFrame(() => requestAnimationFrame(() => {
+        bars.querySelectorAll('.bar-fill').forEach(f => f.style.width = f.dataset.w + '%');
+      }));
+      const pick = btn.dataset.snack;
+      note.innerHTML = pick === best
+        ? '🎉 감과 데이터가 일치! 지난 4주 데이터도 <b>컵라면(42개)</b>이 1등이다. 하지만 늘 이렇게 운이 좋을까? 데이터가 있으면 <b>운에 기대지 않아도</b> 된다.'
+        : '🔍 감은 <b>' + pick + '</b>을(를) 골랐지만, 데이터는 <b>컵라면(42개)</b>이 1등이라고 말한다. 감으로는 놓칠 수 있는 답 — 이것이 <b>데이터 기반 의사 결정</b>이다!';
+    });
+  });
+})();
+
+/* ==========================================================
+   데모 2 — 정형/비정형 분류 챌린지
+   ========================================================== */
+(function () {
+  const ITEMS = [
+    { name: '📄 중간고사 성적표', type: 's', why: '행(학생)×열(과목) 표 — 정형' },
+    { name: '📸 급식 사진', type: 'u', why: '이미지 — 틀이 없는 비정형' },
+    { name: '💬 유튜브 댓글', type: 'u', why: '자유로운 글 — 비정형' },
+    { name: '📋 출석부', type: 's', why: '행×열 표 — 정형' },
+    { name: '🎙️ 통화 녹음 파일', type: 'u', why: '음성 — 비정형' },
+    { name: '🚌 버스 승하차 기록', type: 's', why: '시간·정류장·인원 표 — 정형' },
+    { name: '🎬 CCTV 영상', type: 'u', why: '영상 — 비정형' },
+    { name: '✅ 설문 객관식 응답표', type: 's', why: '문항×응답 표 — 정형' },
+  ];
+  let score = 0, done = 0;
+  const grid = document.getElementById('clsGrid');
+  const note = document.getElementById('clsNote');
+  ITEMS.forEach(item => {
+    const div = document.createElement('div');
+    div.className = 'cls-item';
+    div.innerHTML = '<div class="ci-name">' + item.name + '</div>' +
+      '<div class="ci-btns"><button data-a="s">정형</button><button data-a="u">비정형</button></div>' +
+      '<div class="ci-mark"></div>';
+    div.querySelectorAll('button').forEach(b => {
+      b.addEventListener('click', () => {
+        div.querySelectorAll('button').forEach(x => x.disabled = true);
+        const right = b.dataset.a === item.type;
+        if (right) score++;
+        done++;
+        div.classList.add(right ? 'right' : 'wrong');
+        div.querySelector('.ci-mark').textContent = (right ? '✓ 정답! ' : '✗ ') + item.why;
+        document.getElementById('clsScore').textContent = score + ' / 8';
+        if (done === 8) {
+          note.innerHTML = score >= 7
+            ? '🏆 <b>' + score + '/8</b> — 훌륭하다! 기준은 하나였다: <b>"표에 바로 담기는가?"</b>'
+            : '📖 <b>' + score + '/8</b> — 헷갈린 카드의 해설을 다시 보자. 기준은 딱 하나, <b>"행×열 표에 바로 담기는가?"</b>';
+        }
+      });
+    });
+    grid.appendChild(div);
+  });
+})();
+
+/* ==========================================================
+   데모 3 — 데이터 합치기 (공통 키)
+   ========================================================== */
+(function () {
+  const btn = document.getElementById('joinBtn');
+  const reset = document.getElementById('joinReset');
+  const result = document.getElementById('joinResult');
+  const note = document.getElementById('joinNote');
+  btn.addEventListener('click', () => {
+    result.classList.add('show');
+    btn.disabled = true; reset.disabled = false;
+    note.innerHTML = '🔑 두 표 모두에 있는 <b>학번</b>이 열쇠(공통 속성)가 되어 행들이 짝을 찾았다. 이서연(10102)은 2권을 빌려서 <b>두 줄</b>이 된 것도 확인! 이제 "1반이 좋아하는 책"이라는 새 질문에 답할 수 있다.';
+  });
+  reset.addEventListener('click', () => {
+    result.classList.remove('show');
+    btn.disabled = false; reset.disabled = true;
+    note.textContent = '버튼을 눌러 두 표를 합쳐 보자. 무엇이 열쇠 역할을 할까?';
+  });
+})();
+
+/* ==========================================================
+   퀴즈 엔진 (시리즈 공통 — info_science_master 계승)
+   ========================================================== */
+const QUIZ = [
+  { q: '다음 중 "데이터 기반 의사 결정"에 가장 가까운 것은?',
+    opts: ['작년에도 팔았으니 올해도 컵라면을 판다', '지난 4주 판매 기록을 보고 준비 수량을 정한다', '사장님의 오랜 감으로 메뉴를 정한다', '친구가 추천한 메뉴로 정한다'], ans: 1,
+    exp: '핵심은 "근거가 데이터인가"이다. 경험·감·추천도 참고는 되지만, 기록된 데이터를 근거로 판단하는 것이 데이터 기반 의사 결정이다.' },
+  { q: 'CCTV 영상 데이터가 "비정형"으로 분류되는 이유는?',
+    opts: ['용량이 너무 커서', '행과 열이 있는 표에 바로 담을 수 없어서', '개인정보가 들어 있어서', '컴퓨터가 저장할 수 없어서'], ans: 1,
+    exp: '구분 기준은 딱 하나 — 표(행×열)에 바로 담기는가. 영상·사진·음성·자유로운 글은 틀이 없으므로 비정형이다. 용량·개인정보는 기준이 아니다.' },
+  { q: '배달 주문 데이터의 "주문 시간" 속성에서 캘 수 있는 가치로 가장 알맞은 것은?',
+    opts: ['유행하는 메뉴 파악', '피크 시간대 예측과 기사 배치', '새 매장의 위치 결정', '고객의 나이 분석'], ans: 1,
+    exp: '속성이 다르면 캘 수 있는 가치도 다르다. 시간 속성 → 시간대 분석, 주소 속성 → 위치 분석, 메뉴 속성 → 유행 분석. "이 속성으로 무슨 질문에 답하지?"가 데이터의 잠재 가치를 여는 열쇠다.' },
+  { q: '학생 명단과 도서 대출 기록, 두 데이터셋을 합치기 위해 반드시 필요한 것은?',
+    opts: ['두 표의 행 개수가 같아야 한다', '두 표에 공통 속성(열쇠)이 있어야 한다', '두 표를 같은 사람이 만들어야 한다', '두 표가 같은 날짜에 만들어져야 한다'], ans: 1,
+    exp: '통합의 조건은 공통 속성(key)이다. 학번처럼 두 표를 잇는 열쇠가 있어야 "누구의 기록인지" 짝을 맞출 수 있다. 행 개수·작성자·날짜는 상관없다.' },
+  { q: '데이터 과학의 과정을 순서대로 바르게 나열한 것은?',
+    opts: ['수집 → 문제 정의 → 분석 → 정리', '문제 정의 → 수집 → 정리 → 분석 → 결론·행동', '분석 → 수집 → 결론 → 정리', '정리 → 분석 → 수집 → 문제 정의'], ans: 1,
+    exp: '❓문제 정의가 항상 먼저다 — 질문이 없으면 무엇을 모을지도 정할 수 없다. 그다음 수집(2단원) → 정리(2단원) → 분석·모델링(3단원) → 결론과 행동으로 이어진다.' },
+];
+
+let answered = 0;
+(function renderQuiz() {
+  const wrap = document.getElementById('quizWrap');
+  QUIZ.forEach((item, qi) => {
+    const div = document.createElement('div');
+    div.className = 'q-item';
+    const qt = document.createElement('div');
+    qt.className = 'q-text';
+    qt.innerHTML = '<span class="qnum">' + (qi + 1) + '</span>' + item.q;
+    div.appendChild(qt);
+    const opts = document.createElement('div');
+    opts.className = 'q-opts';
+    const exp = document.createElement('div');
+    exp.className = 'q-exp';
+    exp.innerHTML = '💡 ' + item.exp;
+    item.opts.forEach((label, oi) => {
+      const b = document.createElement('button');
+      b.className = 'q-opt';
+      b.textContent = ['①', '②', '③', '④'][oi] + ' ' + label;
+      b.addEventListener('click', () => {
+        if (b.disabled) return;
+        opts.querySelectorAll('.q-opt').forEach(o => o.disabled = true);
+        if (oi === item.ans) { b.classList.add('correct'); b.textContent += '  ✅ 정답!'; }
+        else { b.classList.add('wrong'); b.textContent += '  ❌'; opts.children[item.ans].classList.add('correct'); }
+        exp.classList.add('show');
+        answered++;
+        updateStatus();
+      });
+      opts.appendChild(b);
+    });
+    div.appendChild(opts);
+    div.appendChild(exp);
+    wrap.appendChild(div);
+  });
+  updateStatus();
+})();
+function updateStatus() {
+  const el = document.getElementById('quizStatus');
+  el.innerHTML = answered >= QUIZ.length
+    ? '🎉 <b>퀴즈 완료!</b> 1단원 개념을 모두 확인했다. 다음은 2단원 — 데이터 준비와 분석!'
+    : '진행: <b>' + answered + '</b> / ' + QUIZ.length + ' 문항 — 보기를 클릭하면 바로 채점된다!';
+}
+</script>
+</body>
+</html>

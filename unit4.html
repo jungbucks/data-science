@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>데이터 과학 4단원 — 프로젝트 워크북</title>
+<style>
+/* ==========================================================
+   데이터 과학 시리즈 공통 (DESIGN_SPEC.md) — 4단원: 로즈
+   워크북 구성: 개념 카드가 아니라 STEP 가이드 + 체크리스트 + 제출 양식
+   ========================================================== */
+:root {
+  /* 단원 액센트 — 4단원 로즈 */
+  --ua: #DB2777;
+  --ua-dark: #BE185D;
+  --ua-soft: #FDEEF5;
+  /* 중립 */
+  --bg: #FAFBFD;
+  --card: #FFFFFF;
+  --ink: #17263B;
+  --muted: #5D6B7E;
+  --line: #E4E9F0;
+  /* 차트 카테고리 5색 */
+  --c1: #2563EB; --c2: #D97706; --c3: #0891B2; --c4: #7C3AED; --c5: #DB2777;
+  /* 시맨틱 */
+  --ok: #0E9F6E; --bad: #E02424;
+  --radius: 18px;
+  --shadow: 0 3px 16px rgba(23, 38, 59, .07);
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'Pretendard Variable', Pretendard, 'Malgun Gothic', 'Noto Sans KR', -apple-system, sans-serif;
+  background: var(--bg); color: var(--ink);
+  line-height: 1.75; font-size: 16.5px;
+}
+button:focus-visible, summary:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visible { outline: 3px solid var(--ua); outline-offset: 2px; }
+
+/* ---------- 헤더 ---------- */
+header {
+  position: relative; text-align: center;
+  padding: 56px 20px 34px; overflow: hidden;
+  background: var(--card); border-bottom: 1px solid var(--line);
+}
+header::before {
+  content: ''; position: absolute; inset: 0; pointer-events: none;
+  background:
+    radial-gradient(circle 5px at 12% 30%, var(--c1) 98%, transparent),
+    radial-gradient(circle 4px at 22% 68%, var(--c3) 98%, transparent),
+    radial-gradient(circle 6px at 31% 22%, var(--c2) 98%, transparent),
+    radial-gradient(circle 4px at 45% 80%, var(--c5) 98%, transparent),
+    radial-gradient(circle 5px at 63% 76%, var(--c4) 98%, transparent),
+    radial-gradient(circle 4px at 72% 24%, var(--c1) 98%, transparent),
+    radial-gradient(circle 6px at 84% 60%, var(--c3) 98%, transparent),
+    radial-gradient(circle 4px at 91% 32%, var(--c2) 98%, transparent);
+  opacity: .28;
+}
+.unit-badge {
+  display: inline-block; font-size: 13px; font-weight: 800; letter-spacing: .1em;
+  color: var(--ua-dark); background: var(--ua-soft); border: 1px solid var(--ua);
+  padding: 5px 16px; border-radius: 99px; margin-bottom: 16px;
+}
+h1 { font-size: clamp(30px, 5vw, 44px); font-weight: 900; letter-spacing: -.02em; line-height: 1.25; }
+h1 .ua { color: var(--ua-dark); }
+.sub { color: var(--muted); margin-top: 10px; font-size: 17px; }
+
+/* ---------- 스텝 내비 ---------- */
+nav.toc {
+  display: flex; gap: 8px; flex-wrap: wrap; justify-content: center;
+  padding: 14px 20px; background: var(--card);
+  border-bottom: 1px solid var(--line);
+  position: sticky; top: 0; z-index: 50;
+}
+nav.toc a {
+  font-size: 14px; font-weight: 700; color: var(--muted); text-decoration: none;
+  padding: 7px 14px; border-radius: 99px; border: 1.5px solid var(--line);
+  transition: color .15s, border-color .15s, background .15s;
+}
+nav.toc a:hover { color: var(--ua-dark); border-color: var(--ua); background: var(--ua-soft); }
+
+/* ---------- 본문 & 카드 ---------- */
+main { max-width: 940px; margin: 0 auto; padding: 30px 20px 80px; }
+.card {
+  background: var(--card); border: 1px solid var(--line); border-radius: var(--radius);
+  box-shadow: var(--shadow); padding: 30px 30px 26px; margin-bottom: 26px;
+  scroll-margin-top: 70px;
+}
+h2 { font-size: 24px; font-weight: 900; letter-spacing: -.01em; margin-bottom: 8px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+h2 .chip { font-size: 12px; font-weight: 800; color: #fff; background: var(--ua); border-radius: 8px; padding: 3px 10px; flex-shrink: 0; }
+h3 { font-size: 18px; font-weight: 800; margin: 26px 0 8px; }
+h3::before { content: '📌 '; }
+p { margin: 8px 0; }
+.lead { color: var(--muted); font-size: 15.5px; margin-bottom: 12px; }
+strong { font-weight: 800; }
+mark { background: linear-gradient(transparent 55%, #FBD0E4 55%); color: inherit; padding: 0 2px; font-weight: 700; }
+ul.list, ol.list { padding-left: 24px; margin: 8px 0; }
+ul.list li, ol.list li { margin: 5px 0; }
+
+.tip, .warn { border-radius: 14px; padding: 15px 20px; margin: 16px 0; font-size: 15.5px; border: 1.5px solid; }
+.tip { background: var(--ua-soft); border-color: var(--ua); }
+.warn { background: #FDF2F2; border-color: #F8B4B4; }
+.tip .t, .warn .t { font-weight: 900; display: block; margin-bottom: 4px; }
+.tip .t { color: var(--ua-dark); }
+.warn .t { color: var(--bad); }
+
+/* ---------- 표 ---------- */
+.tbl-wrap { overflow-x: auto; margin: 14px 0; border-radius: 12px; border: 1px solid var(--line); }
+table { border-collapse: collapse; width: 100%; min-width: 480px; background: #fff; font-size: 15px; }
+th { background: var(--ink); color: #fff; font-weight: 800; padding: 10px 14px; text-align: left; font-size: 14px; }
+td { padding: 10px 14px; border-bottom: 1px solid var(--line); vertical-align: top; }
+tr:last-child td { border-bottom: none; }
+
+/* ---------- 사례 갤러리 ---------- */
+.case-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 12px; margin: 14px 0; }
+.case { background: #fff; border: 1.5px solid var(--line); border-radius: 14px; padding: 16px 18px; }
+.case .cs-ico { font-size: 24px; margin-bottom: 6px; }
+.case h4 { font-size: 15px; font-weight: 800; margin-bottom: 4px; }
+.case p { font-size: 13.5px; color: var(--muted); margin: 0; line-height: 1.6; }
+
+/* ---------- 데모/판정기 공통 ---------- */
+.demo { background: #F3F6FA; border: 2px dashed #C9D4E0; border-radius: 16px; padding: 22px; margin: 18px 0; }
+.demo-title { font-weight: 900; font-size: 15px; margin-bottom: 12px; }
+.badge-live {
+  font-size: 11px; color: #fff; background: var(--ua);
+  border-radius: 99px; padding: 2px 9px; margin-left: 6px; vertical-align: 2px;
+  animation: pulse 2s infinite;
+}
+@keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: .55; } }
+.btn {
+  font-family: inherit; font-size: 14.5px; font-weight: 800;
+  padding: 10px 18px; border-radius: 12px; cursor: pointer;
+  border: none; color: #fff; background: var(--ua);
+  box-shadow: 0 3px 10px rgba(219, 39, 119, .3);
+  transition: transform .15s, filter .15s;
+}
+.btn:hover { transform: translateY(-2px); filter: brightness(1.06); }
+.btn:active { transform: translateY(0) scale(.97); }
+.btn.ghost { background: #fff; color: var(--ink); border: 2px solid var(--line); box-shadow: none; }
+.btn-row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 12px; }
+.demo-note {
+  margin-top: 14px; font-size: 15px; font-weight: 600;
+  background: #fff; border-radius: 12px; padding: 12px 16px;
+  border-left: 4px solid var(--ua); min-height: 46px;
+}
+
+/* ---------- 체크 항목 ---------- */
+.chk { display: flex; align-items: flex-start; gap: 10px; background: #fff; border: 1.5px solid var(--line); border-radius: 12px; padding: 12px 14px; margin: 8px 0; cursor: pointer; transition: border-color .15s, background .15s; font-size: 15px; }
+.chk:hover { border-color: var(--ua); }
+.chk input { width: 18px; height: 18px; margin-top: 4px; accent-color: var(--ua); cursor: pointer; flex-shrink: 0; }
+.chk.on { border-color: var(--ua); background: var(--ua-soft); }
+.chk .c-sub { display: block; font-size: 13.5px; color: var(--muted); font-weight: 400; }
+.verdict { margin-top: 14px; border-radius: 12px; padding: 14px 18px; font-weight: 800; font-size: 15.5px; background: #fff; border-left: 4px solid var(--muted); }
+.verdict.go { border-left-color: var(--ok); color: var(--ok); background: #F0FBF7; }
+.verdict.hold { border-left-color: #D97706; color: #B45309; background: #FBF0DC; }
+.verdict.stop { border-left-color: var(--bad); color: var(--bad); background: #FDF2F2; }
+
+/* ---------- 워크시트 폼 ---------- */
+.ws { display: grid; gap: 12px; margin: 14px 0; }
+.ws label { font-size: 14px; font-weight: 800; display: block; margin-bottom: 4px; }
+.ws label .opt { color: var(--muted); font-weight: 600; }
+.ws input, .ws textarea {
+  width: 100%; font-family: inherit; font-size: 15px; color: var(--ink);
+  background: #fff; border: 1.5px solid var(--line); border-radius: 10px;
+  padding: 10px 12px; transition: border-color .15s;
+}
+.ws textarea { min-height: 64px; resize: vertical; line-height: 1.6; }
+.ws input:focus, .ws textarea:focus { border-color: var(--ua); outline: none; }
+.ws-row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+@media (max-width: 560px) { .ws-row2 { grid-template-columns: 1fr; } }
+
+/* ---------- 문장 틀 ---------- */
+.frame {
+  background: var(--ua-soft); border: 1.5px solid var(--ua); border-radius: 14px;
+  padding: 16px 20px; margin: 14px 0; font-size: 16px; font-weight: 700; line-height: 2;
+}
+.frame .blank { display: inline-block; min-width: 90px; border-bottom: 2px solid var(--ua); color: var(--ua-dark); text-align: center; font-weight: 800; }
+
+footer { text-align: center; color: var(--muted); font-size: 13.5px; padding: 22px; }
+footer .series { font-weight: 800; color: var(--ua-dark); }
+
+/* ---------- 퀴즈 (시리즈 공통 엔진) ---------- */
+details.acc { border-radius: var(--radius); background: var(--card); box-shadow: var(--shadow); border: 1px solid var(--line); margin-bottom: 18px; overflow: hidden; }
+details.acc summary { cursor: pointer; list-style: none; padding: 20px 26px; font-weight: 900; font-size: 17px; display: flex; align-items: center; gap: 10px; }
+details.acc summary::-webkit-details-marker { display: none; }
+details.acc summary::after { content: '▼'; margin-left: auto; font-size: 12px; color: var(--ua); transition: transform .25s; }
+details.acc[open] summary::after { transform: rotate(180deg); }
+details.acc summary:hover { background: var(--ua-soft); }
+details.acc .acc-body { padding: 4px 26px 26px; }
+.q-item { margin-bottom: 24px; }
+.q-text { font-weight: 800; margin-bottom: 10px; }
+.q-text .qnum { display: inline-flex; align-items: center; justify-content: center; width: 26px; height: 26px; border-radius: 50%; margin-right: 8px; background: var(--ua); color: #fff; font-size: 13px; font-weight: 900; }
+.q-opts { display: grid; gap: 8px; }
+.q-opt { font-family: inherit; text-align: left; font-size: 15px; font-weight: 600; padding: 11px 16px; border-radius: 12px; cursor: pointer; border: 2px solid var(--line); background: #fff; color: var(--ink); transition: all .18s; }
+.q-opt:hover:not(:disabled) { border-color: var(--ua); background: var(--ua-soft); transform: translateX(4px); }
+.q-opt.correct { border-color: var(--ok); background: #F0FBF7; font-weight: 800; }
+.q-opt.wrong { border-color: var(--bad); background: #FDF2F2; animation: shake .35s; }
+.q-opt:disabled { cursor: default; opacity: .75; }
+.q-opt.correct:disabled, .q-opt.wrong:disabled { opacity: 1; }
+@keyframes shake { 0%,100% { transform: translateX(0); } 25% { transform: translateX(-6px); } 75% { transform: translateX(6px); } }
+@keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+.q-exp { display: none; margin-top: 10px; font-size: 14.5px; background: var(--ua-soft); border: 1.5px solid var(--ua); border-radius: 12px; padding: 12px 16px; }
+.q-exp.show { display: block; animation: fadeUp .3s both; }
+.quiz-status { font-size: 14px; font-weight: 800; color: var(--muted); margin-bottom: 16px; }
+.quiz-status b { color: var(--ua-dark); }
+
+@media (max-width: 640px) {
+  body { font-size: 15.5px; }
+  .card { padding: 22px 18px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <span class="unit-badge">데이터 과학 · 4단원 / 4 · 프로젝트 워크북</span>
+  <h1>나의 데이터 과학 <span class="ua">프로젝트</span></h1>
+  <p class="sub">1~3단원의 무기를 전부 꺼내라 — 진짜 질문에 도전할 시간 🚀</p>
+</header>
+
+<nav class="toc">
+  <a href="#s1">STEP 1 주제</a>
+  <a href="#s2">STEP 2 탐색</a>
+  <a href="#s3">STEP 3 분석×2</a>
+  <a href="#s4">STEP 4 해석</a>
+  <a href="#s5">STEP 5 성찰·공유</a>
+  <a href="#submit">📋 제출</a>
+</nav>
+
+<main>
+
+  <div class="warn" style="margin-top:0"><span class="t">⚠️ 워크북 사용법</span>
+    이 페이지의 입력 내용은 <strong>저장되지 않는다</strong>(공용 PC 보호). 작성이 끝나면 반드시 맨 아래 <strong>[결과 요약 복사]</strong>로 클립보드에 담아 패들렛·구글 문서 등에 붙여넣어 보관하자.
+  </div>
+
+  <!-- ═══════════ STEP 1 주제 ═══════════ -->
+  <div class="card" id="s1">
+    <h2><span class="chip">STEP 1</span> 데이터로 풀 수 있는 주제 찾기 🔍</h2>
+    <p class="lead">좋은 프로젝트의 절반은 <strong>좋은 질문</strong>이다. 먼저 세상의 사례를 보고, 내 주제를 찾자.</p>
+
+    <h3>분야별 데이터 과학 적용 사례</h3>
+    <div class="case-grid">
+      <div class="case"><div class="cs-ico">⚽</div><h4>스포츠</h4><p>축구팀이 패스 데이터로 상대 약점 공략 — 전술 설계가 데이터 싸움이 됐다</p></div>
+      <div class="case"><div class="cs-ico">🌏</div><h4>환경</h4><p>미세먼지 측정 데이터 + 바람 데이터로 "내일 공기" 예보</p></div>
+      <div class="case"><div class="cs-ico">🏥</div><h4>보건</h4><p>독감 검색어 추이로 유행 시작을 병원 통계보다 먼저 감지</p></div>
+      <div class="case"><div class="cs-ico">🎵</div><h4>문화</h4><p>스트리밍 기록 군집 분석으로 "취향 유형"별 플레이리스트 추천</p></div>
+    </div>
+    <p>공통점을 찾았는가? 전부 <mark>"측정할 수 있는 질문"</mark>에서 출발했다. "우리 학교를 좋게 만들자"(측정 불가)가 아니라 <strong>"급식 잔반량은 요일과 관계가 있을까?"</strong>(측정 가능)처럼.</p>
+
+    <div class="demo">
+      <div class="demo-title">🎮 주제 적합성 판정기 <span class="badge-live">LIVE</span></div>
+      <p style="font-size:15px">주제 후보를 하나 정했다면, 네 가지 관문을 통과하는지 체크해 보자.</p>
+      <div id="fitList">
+        <label class="chk"><input type="checkbox"><span><strong>📥 데이터를 구할 수 있는가?</strong><span class="c-sub">직접 조사(설문·측정)하거나 공공데이터포털·통계청 등에서 내려받을 수 있다</span></span></label>
+        <label class="chk"><input type="checkbox"><span><strong>📏 측정 가능한 질문인가?</strong><span class="c-sub">"좋을까?"가 아니라 숫자·횟수·비율로 답이 나오는 질문이다</span></span></label>
+        <label class="chk"><input type="checkbox"><span><strong>⏱️ 우리 힘으로 가능한 크기인가?</strong><span class="c-sub">한 학기 안에, 우리 모둠의 도구(시트·엔트리·파이썬)로 다룰 수 있다</span></span></label>
+        <label class="chk"><input type="checkbox"><span><strong>🛡️ 윤리 관문을 통과하는가?</strong><span class="c-sub">개인정보를 다루지 않거나, 동의·익명화 계획이 있다</span></span></label>
+      </div>
+      <div class="verdict" id="fitVerdict">체크한 관문: 0 / 4 — 네 가지를 모두 점검해 보자.</div>
+    </div>
+
+    <div class="ws">
+      <div><label for="wsTopic">✍️ 우리 모둠의 주제 (한 문장 질문으로)</label>
+      <input id="wsTopic" maxlength="80" placeholder="예: 우리 학교 급식 잔반량은 요일·메뉴와 어떤 관계가 있을까?"></div>
+      <div><label for="wsData">✍️ 사용할 데이터와 출처</label>
+      <input id="wsData" maxlength="80" placeholder="예: 4주간 급식실 잔반 무게 직접 측정 + 식단표"></div>
+    </div>
+  </div>
+
+  <!-- ═══════════ STEP 2 탐색 ═══════════ -->
+  <div class="card" id="s2">
+    <h2><span class="chip">STEP 2</span> 데이터와 첫 인사 — 탐색적 분석 👀</h2>
+    <p class="lead">모델부터 들이대지 말 것. 먼저 데이터를 <strong>구경</strong>하며 의미와 아이디어를 캔다.</p>
+    <ul class="list">
+      <li><strong>훑어보기</strong> — 몇 행 몇 열인가? 각 속성의 최소·최대·평균은? (스프레드시트 함수면 충분)</li>
+      <li><strong>청소하기</strong> — 이상치·결측치가 있는가? <mark>2단원의 전처리</mark>를 그대로 적용</li>
+      <li><strong>그려보기</strong> — 막대·선·산점도로 일단 그린다. <mark>표에서 안 보이던 것</mark>이 반드시 나온다</li>
+      <li><strong>어? 하기</strong> — 예상과 다른 지점이 보물이다. "왜 수요일만 잔반이 적지?" → 여기서 창의적 해결 아이디어가 나온다</li>
+    </ul>
+    <div class="ws">
+      <div><label for="wsFind">✍️ 탐색 중 발견한 "어?" 한 가지 <span class="opt">(예상 밖이었던 것)</span></label>
+      <textarea id="wsFind" maxlength="200" placeholder="예: 잔반량이 메뉴보다 '시험 기간 여부'와 더 관련 있어 보였다"></textarea></div>
+      <div><label for="wsIdea">✍️ 그래서 떠오른 해결 아이디어</label>
+      <textarea id="wsIdea" maxlength="200" placeholder="예: 시험 주간엔 식단을 간편식 위주로 바꾸면 잔반이 줄지 않을까?"></textarea></div>
+    </div>
+  </div>
+
+  <!-- ═══════════ STEP 3 분석 ═══════════ -->
+  <div class="card" id="s3">
+    <h2><span class="chip">STEP 3</span> 두 가지 이상의 방법으로 분석하기 ⚔️</h2>
+    <p class="lead">시리즈 내내 이어진 규칙 — <strong>한 가지 렌즈는 절반의 진실</strong>(2-4단원)이다. 최소 두 방법으로 분석하고 비교하라.</p>
+    <div class="tbl-wrap"><table>
+      <tr><th>조합 예시</th><th>방법 ①</th><th>방법 ②</th><th>비교 포인트</th></tr>
+      <tr><td>잔반 프로젝트</td><td>요일별 <strong>평균 비교</strong> (막대)</td><td>기온×잔반 <strong>회귀</strong> (3-2)</td><td>요일 효과 vs 날씨 효과, 어느 쪽이 큰가?</td></tr>
+      <tr><td>독서 프로젝트</td><td>대출 기록 <strong>연관 분석</strong> (3-4)</td><td>독서 성향 <strong>군집</strong> (3-3)</td><td>추천 규칙이 유형별로 달라지는가?</td></tr>
+      <tr><td>공부 습관 프로젝트</td><td>공부시간×성적 <strong>산점도·회귀</strong></td><td>주차별 <strong>흐름 분석</strong> (2-4)</td><td>전체 경향과 최근 추세가 일치하는가?</td></tr>
+    </table></div>
+    <div class="ws">
+      <div class="ws-row2">
+        <div><label for="wsM1">✍️ 우리의 방법 ①</label>
+        <input id="wsM1" maxlength="60" placeholder="예: 요일별 평균 막대그래프"></div>
+        <div><label for="wsM2">✍️ 우리의 방법 ②</label>
+        <input id="wsM2" maxlength="60" placeholder="예: 기온과 잔반량 회귀 분석"></div>
+      </div>
+      <div><label for="wsCmp">✍️ 두 결과를 비교하니 <span class="opt">(같았나, 달랐나, 무엇을 더 보여줬나)</span></label>
+      <textarea id="wsCmp" maxlength="250" placeholder="예: 평균 비교는 금요일이 최다라 했지만, 회귀는 기온 영향이 더 크다고 말했다"></textarea></div>
+    </div>
+  </div>
+
+  <!-- ═══════════ STEP 4 해석 ═══════════ -->
+  <div class="card" id="s4">
+    <h2><span class="chip">STEP 4</span> 막혀도 끝까지 — 그리고 해석 🧗</h2>
+    <p class="lead">모든 프로젝트는 반드시 막힌다. 막히는 건 실패가 아니라 <strong>과정의 기본값</strong>이다.</p>
+    <h3>막혔을 때 응급 처치표</h3>
+    <div class="tbl-wrap"><table>
+      <tr><th>증상</th><th>처방</th></tr>
+      <tr><td>데이터가 너무 지저분하다</td><td>2단원으로 — 이상치·결측치부터 하나씩. <strong>전부 못 고쳐도 된다, 기록하고 진행</strong></td></tr>
+      <tr><td>분석 결과가 이상하다</td><td>3단원으로 — 다른 방법으로 교차 확인. 이상한 결과도 <strong>"왜?"를 물으면 발견</strong>이 된다</td></tr>
+      <tr><td>결론이 안 나온다</td><td>질문이 너무 크다는 신호 — <strong>범위를 좁혀라</strong> (전교생 → 우리 반, 1년 → 1달)</td></tr>
+      <tr><td>"관계없음"만 나왔다</td><td>그것도 훌륭한 결론! <strong>"영향 없더라"는 발견</strong>을 당당히 보고하라 (2-3단원)</td></tr>
+    </table></div>
+
+    <h3>해석 문장 틀 — 이 틀에 채우면 해석이 된다</h3>
+    <div class="frame">
+      데이터에 따르면 <span class="blank">발견한 사실</span> 이고,<br>
+      이는 <span class="blank">그 의미</span> 를 뜻하며,<br>
+      따라서 우리는 <span class="blank">제안·행동</span> 을 제안한다.
+    </div>
+    <div class="ws">
+      <div><label for="wsInterp">✍️ 우리의 해석 (위 틀로 세 줄)</label>
+      <textarea id="wsInterp" maxlength="300" placeholder="데이터에 따르면 …이고, 이는 …를 뜻하며, 따라서 …를 제안한다."></textarea></div>
+    </div>
+    <div class="tip"><span class="t">💡 숫자에서 멈추면 분석, 행동까지 가면 프로젝트</span>
+      "금요일 잔반 12kg"은 숫자다. "금요일 식단 조정을 급식소에 제안한다"까지 가야 <mark>데이터 기반 의사 결정(1단원)</mark>의 완성이다.
+    </div>
+  </div>
+
+  <!-- ═══════════ STEP 5 성찰·공유 ═══════════ -->
+  <div class="card" id="s5">
+    <h2><span class="chip">STEP 5</span> 성찰하고, 세상에 내놓기 🌏</h2>
+    <p class="lead">전 과정을 되돌아보고, 결과가 세상에 어떤 영향을 줄지 생각한 뒤 공유한다.</p>
+    <h3>성찰 질문 — 스스로에게 묻기</h3>
+    <ul class="list">
+      <li>수집(STEP 1~2)은 <strong>편향</strong> 없었나? 표본이 전체를 대표했나? (2-1)</li>
+      <li>결론이 <strong>데이터가 말한 범위</strong>를 넘지 않았나? (관계를 원인으로 착각하지 않았나 — 2-3)</li>
+      <li>다시 한다면 <strong>무엇을 다르게</strong> 할 것인가?</li>
+    </ul>
+    <h3>사회적 영향 점검</h3>
+    <ul class="list">
+      <li>🛡️ 결과에 <strong>개인이 특정될 정보</strong>가 남아 있지 않은가?</li>
+      <li>⚖️ 우리의 결론이 <strong>특정 집단에게 불리하게</strong> 쓰일 여지는 없는가?</li>
+      <li>📢 결과를 <strong>누구에게 전달</strong>하면 실제 변화가 생기는가? (급식소, 학생회, 학교…)</li>
+    </ul>
+    <div class="ws">
+      <div><label for="wsReflect">✍️ 성찰 한 가지 — 다시 한다면 바꿀 것</label>
+      <textarea id="wsReflect" maxlength="200" placeholder="예: 2주 측정으론 부족했다. 시험 기간을 피해 4주로 늘리겠다"></textarea></div>
+      <div><label for="wsUse">✍️ 활용 방안 — 결과를 어디에, 어떻게 쓸 것인가</label>
+      <textarea id="wsUse" maxlength="200" placeholder="예: 분석 결과를 학생회와 급식소에 전달해 금요일 식단 개선을 제안"></textarea></div>
+    </div>
+  </div>
+
+  <!-- ═══════════ 제출 ═══════════ -->
+  <div class="card" id="submit">
+    <h2><span class="chip">제출</span> 프로젝트 요약 만들기 📋</h2>
+    <div class="ws ws-row2">
+      <div><label for="wsTeam">모둠명</label><input id="wsTeam" maxlength="20" placeholder="데이터 원정대"></div>
+      <div><label for="wsNames">모둠원</label><input id="wsNames" maxlength="60" placeholder="김민준, 이서연, 박지훈"></div>
+    </div>
+    <div class="btn-row">
+      <button class="btn" id="copyBtn">📋 결과 요약 복사 (제출용)</button>
+    </div>
+    <div class="demo-note" id="copyNote">위 STEP 1~5의 ✍️ 칸을 채운 뒤 누르면, 정리된 제출용 텍스트가 클립보드에 담긴다. 패들렛·구글 문서에 붙여넣어 제출하자!</div>
+  </div>
+
+  <!-- ═══════════ 퀴즈 ═══════════ -->
+  <details class="acc" id="quiz">
+    <summary>📝 4단원 개념 확인 퀴즈</summary>
+    <div class="acc-body">
+      <p class="quiz-status" id="quizStatus"></p>
+      <div id="quizWrap"></div>
+    </div>
+  </details>
+
+</main>
+
+<footer><span class="series">데이터 과학 시리즈 4/4</span> · 프로젝트 워크북 · 단일 HTML · 오프라인 실행</footer>
+
+<script>
+'use strict';
+
+/* ==========================================================
+   STEP 1 — 주제 적합성 판정기
+   ========================================================== */
+(function () {
+  const boxes = document.querySelectorAll('#fitList input');
+  const verdict = document.getElementById('fitVerdict');
+  function judge() {
+    let n = 0;
+    boxes.forEach(b => { b.closest('.chk').classList.toggle('on', b.checked); if (b.checked) n++; });
+    verdict.className = 'verdict' + (n === 4 ? ' go' : n === 3 ? ' hold' : n > 0 ? ' stop' : '');
+    verdict.textContent =
+      n === 4 ? '✅ GO! 네 관문 통과 — 이 주제로 출발해도 좋다.' :
+      n === 3 ? '🔧 아깝다! 통과 못 한 관문 하나를 보완하면 좋은 주제가 된다. (질문을 좁히거나, 데이터 출처를 바꾸거나)' :
+      n > 0 ? '🔄 아직이다 — 관문 두 개 이상이 막혀 있으면 주제를 다시 고르는 편이 빠르다.' :
+      '체크한 관문: 0 / 4 — 네 가지를 모두 점검해 보자.';
+  }
+  boxes.forEach(b => b.addEventListener('change', judge));
+})();
+
+/* ==========================================================
+   제출 — 결과 요약 복사
+   ========================================================== */
+(function () {
+  const btn = document.getElementById('copyBtn');
+  const note = document.getElementById('copyNote');
+  const v = id => (document.getElementById(id).value.trim() || '(미작성)');
+  function buildText() {
+    const d = new Date();
+    const pad = x => String(x).padStart(2, '0');
+    return [
+      '[데이터 과학 프로젝트 요약]',
+      '모둠: ' + v('wsTeam') + ' (' + v('wsNames') + ')',
+      '1. 주제 질문: ' + v('wsTopic'),
+      '2. 데이터·출처: ' + v('wsData'),
+      '3. 탐색 발견: ' + v('wsFind'),
+      '   해결 아이디어: ' + v('wsIdea'),
+      '4. 분석 방법 ①: ' + v('wsM1') + ' / ②: ' + v('wsM2'),
+      '   비교 결과: ' + v('wsCmp'),
+      '5. 해석: ' + v('wsInterp'),
+      '6. 성찰: ' + v('wsReflect'),
+      '7. 활용 방안: ' + v('wsUse'),
+      '작성일: ' + d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()),
+    ].join('\n');
+  }
+  function fallbackCopy(t) {
+    const ta = document.createElement('textarea');
+    ta.value = t; ta.style.position = 'fixed'; ta.style.opacity = '0';
+    document.body.appendChild(ta); ta.select();
+    let ok = false;
+    try { ok = document.execCommand('copy'); } catch (e) {}
+    ta.remove(); return ok;
+  }
+  btn.addEventListener('click', () => {
+    const txt = buildText();
+    const done = ok => {
+      note.innerHTML = ok
+        ? '✅ <b>복사 완료!</b> 패들렛·구글 문서에 붙여넣어 제출하자. (미작성 칸은 "(미작성)"으로 표시된다 — 채우고 다시 복사해도 된다)'
+        : '❌ 복사에 실패했다 — 브라우저 설정을 확인하거나 내용을 직접 드래그해 복사하자.';
+    };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(txt).then(() => done(true), () => done(fallbackCopy(txt)));
+    } else done(fallbackCopy(txt));
+  });
+})();
+
+/* ==========================================================
+   퀴즈 엔진 (시리즈 공통)
+   ========================================================== */
+const QUIZ = [
+  { q: '데이터 과학 프로젝트의 주제로 가장 알맞은 것은?',
+    opts: ['우리 학교를 더 좋은 곳으로 만들자', '급식 잔반량은 요일·메뉴와 관계가 있을까?', '학생들이 모두 행복해지는 방법', '공부는 왜 해야 하는가'], ans: 1,
+    exp: '데이터 프로젝트의 질문은 "측정 가능"해야 한다. 잔반량(kg)·요일·메뉴는 전부 기록할 수 있는 값이다. 나머지는 훌륭한 고민이지만 숫자로 답이 나오지 않는다.' },
+  { q: '탐색적 분석(STEP 2)의 가장 큰 목적은?',
+    opts: ['보고서에 넣을 예쁜 그래프 만들기', '데이터의 생김새를 파악하고 예상 밖의 지점을 발견하기', '모델의 정확도를 높이기', '데이터 용량 줄이기'], ans: 1,
+    exp: '탐색은 "데이터와의 첫 인사"다. 분포·이상치·패턴을 훑다가 만나는 "어?"가 창의적 아이디어의 출발점이 된다. 모델링은 그다음 일이다.' },
+  { q: '분석을 반드시 두 가지 이상의 방법으로 하는 이유는?',
+    opts: ['보고서 분량이 늘어나서', '방법마다 보여주는 진실이 달라, 비교해야 온전한 결론이 나와서', '한 방법은 반드시 틀리기 때문에', '선생님이 시켜서'], ans: 1,
+    exp: '2단원(합계 vs 흐름)과 3단원(방법 선택)에서 본 그대로 — 렌즈마다 다른 그림이 보인다. 두 결과가 일치하면 결론이 튼튼해지고, 다르면 그 차이 자체가 발견이다.' },
+  { q: '분석 결과 "두 속성은 관계가 없다"고 나왔다. 올바른 태도는?',
+    opts: ['실패했으니 결과를 숨긴다', '관계가 나올 때까지 데이터를 고친다', '"영향이 없더라"는 발견으로 당당히 보고한다', '프로젝트를 포기한다'], ans: 2,
+    exp: '"관계없음"도 훌륭한 지식이다 (기온과 수학 점수처럼!). 결과를 입맛대로 고치는 것이야말로 데이터 과학의 금기 — 끝까지 분석하고 정직하게 해석하는 태도가 핵심 역량이다.' },
+  { q: '프로젝트를 마무리하며 "사회적 영향"을 점검할 때 확인할 것이 아닌 것은?',
+    opts: ['결과에 개인이 특정될 정보가 남았는가', '결론이 특정 집단에게 불리하게 쓰일 수 있는가', '결과를 누구에게 전달해야 변화가 생기는가', '그래프 색상이 유행에 맞는가'], ans: 3,
+    exp: '성찰의 3대 점검은 개인정보·공정성·전달 대상이다. 색상 유행은 사회적 영향이 아니다. 데이터는 힘이 세서, 힘의 방향을 살피는 것까지가 데이터 과학이다.' },
+];
+
+let answered = 0;
+(function renderQuiz() {
+  const wrap = document.getElementById('quizWrap');
+  QUIZ.forEach((item, qi) => {
+    const div = document.createElement('div');
+    div.className = 'q-item';
+    const qt = document.createElement('div');
+    qt.className = 'q-text';
+    qt.innerHTML = '<span class="qnum">' + (qi + 1) + '</span>' + item.q;
+    div.appendChild(qt);
+    const opts = document.createElement('div');
+    opts.className = 'q-opts';
+    const exp = document.createElement('div');
+    exp.className = 'q-exp';
+    exp.innerHTML = '💡 ' + item.exp;
+    item.opts.forEach((label, oi) => {
+      const b = document.createElement('button');
+      b.className = 'q-opt';
+      b.textContent = ['①', '②', '③', '④'][oi] + ' ' + label;
+      b.addEventListener('click', () => {
+        if (b.disabled) return;
+        opts.querySelectorAll('.q-opt').forEach(o => o.disabled = true);
+        if (oi === item.ans) { b.classList.add('correct'); b.textContent += '  ✅ 정답!'; }
+        else { b.classList.add('wrong'); b.textContent += '  ❌'; opts.children[item.ans].classList.add('correct'); }
+        exp.classList.add('show');
+        answered++;
+        updateStatus();
+      });
+      opts.appendChild(b);
+    });
+    div.appendChild(opts);
+    div.appendChild(exp);
+    wrap.appendChild(div);
+  });
+  updateStatus();
+})();
+function updateStatus() {
+  const el = document.getElementById('quizStatus');
+  el.innerHTML = answered >= QUIZ.length
+    ? '🎉 <b>시리즈 완주!</b> 이제 남은 것은 진짜 프로젝트뿐이다. 데이터 원정대, 출발! 🚀'
+    : '진행: <b>' + answered + '</b> / ' + QUIZ.length + ' 문항 — 보기를 클릭하면 바로 채점된다!';
+}
+</script>
+</body>
+</html>

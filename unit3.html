@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>데이터 과학 3단원 — 데이터 모델링과 평가</title>
+<style>
+/* ==========================================================
+   데이터 과학 시리즈 공통 (DESIGN_SPEC.md) — 3단원: 바이올렛
+   ========================================================== */
+:root {
+  /* 단원 액센트 — 3단원 바이올렛 */
+  --ua: #7C3AED;
+  --ua-dark: #6D28D9;
+  --ua-soft: #F1EBFD;
+  /* 중립 */
+  --bg: #FAFBFD;
+  --card: #FFFFFF;
+  --ink: #17263B;
+  --muted: #5D6B7E;
+  --line: #E4E9F0;
+  /* 차트 카테고리 5색 (고정 순서 — DESIGN_SPEC 검증 완료) */
+  --c1: #2563EB; --c2: #D97706; --c3: #0891B2; --c4: #7C3AED; --c5: #DB2777;
+  /* 시맨틱 */
+  --ok: #0E9F6E; --bad: #E02424;
+  --radius: 18px;
+  --shadow: 0 3px 16px rgba(23, 38, 59, .07);
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'Pretendard Variable', Pretendard, 'Malgun Gothic', 'Noto Sans KR', -apple-system, sans-serif;
+  background: var(--bg); color: var(--ink);
+  line-height: 1.75; font-size: 16.5px;
+}
+button:focus-visible, summary:focus-visible, a:focus-visible { outline: 3px solid var(--ua); outline-offset: 2px; }
+
+/* ---------- 헤더: 도트 산점 모티프 ---------- */
+header {
+  position: relative; text-align: center;
+  padding: 56px 20px 34px; overflow: hidden;
+  background: var(--card); border-bottom: 1px solid var(--line);
+}
+header::before {
+  content: ''; position: absolute; inset: 0; pointer-events: none;
+  background:
+    radial-gradient(circle 5px at 12% 30%, var(--c1) 98%, transparent),
+    radial-gradient(circle 4px at 22% 68%, var(--c3) 98%, transparent),
+    radial-gradient(circle 6px at 31% 22%, var(--c2) 98%, transparent),
+    radial-gradient(circle 4px at 45% 80%, var(--c5) 98%, transparent),
+    radial-gradient(circle 5px at 63% 76%, var(--c4) 98%, transparent),
+    radial-gradient(circle 4px at 72% 24%, var(--c1) 98%, transparent),
+    radial-gradient(circle 6px at 84% 60%, var(--c3) 98%, transparent),
+    radial-gradient(circle 4px at 91% 32%, var(--c2) 98%, transparent);
+  opacity: .28;
+}
+.unit-badge {
+  display: inline-block; font-size: 13px; font-weight: 800; letter-spacing: .1em;
+  color: var(--ua-dark); background: var(--ua-soft); border: 1px solid var(--ua);
+  padding: 5px 16px; border-radius: 99px; margin-bottom: 16px;
+}
+h1 { font-size: clamp(30px, 5vw, 44px); font-weight: 900; letter-spacing: -.02em; line-height: 1.25; }
+h1 .ua { color: var(--ua-dark); }
+.sub { color: var(--muted); margin-top: 10px; font-size: 17px; }
+
+/* ---------- 미니 목차 ---------- */
+nav.toc {
+  display: flex; gap: 8px; flex-wrap: wrap; justify-content: center;
+  padding: 14px 20px; background: var(--card);
+  border-bottom: 1px solid var(--line);
+  position: sticky; top: 0; z-index: 50;
+}
+nav.toc a {
+  font-size: 14px; font-weight: 700; color: var(--muted); text-decoration: none;
+  padding: 7px 14px; border-radius: 99px; border: 1.5px solid var(--line);
+  transition: color .15s, border-color .15s, background .15s;
+}
+nav.toc a:hover { color: var(--ua-dark); border-color: var(--ua); background: var(--ua-soft); }
+
+/* ---------- 본문 & 카드 ---------- */
+main { max-width: 940px; margin: 0 auto; padding: 30px 20px 80px; }
+.card {
+  background: var(--card); border: 1px solid var(--line); border-radius: var(--radius);
+  box-shadow: var(--shadow); padding: 30px 30px 26px; margin-bottom: 26px;
+  scroll-margin-top: 70px;
+}
+h2 { font-size: 24px; font-weight: 900; letter-spacing: -.01em; margin-bottom: 8px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+h2 .chip { font-size: 12px; font-weight: 800; color: #fff; background: var(--ua); border-radius: 8px; padding: 3px 10px; flex-shrink: 0; }
+h3 { font-size: 18px; font-weight: 800; margin: 26px 0 8px; }
+h3::before { content: '📌 '; }
+p { margin: 8px 0; }
+.lead { color: var(--muted); font-size: 15.5px; margin-bottom: 12px; }
+strong { font-weight: 800; }
+mark { background: linear-gradient(transparent 55%, #E2D6FB 55%); color: inherit; padding: 0 2px; font-weight: 700; }
+ul.list, ol.list { padding-left: 24px; margin: 8px 0; }
+ul.list li, ol.list li { margin: 5px 0; }
+
+.tip, .warn { border-radius: 14px; padding: 15px 20px; margin: 16px 0; font-size: 15.5px; border: 1.5px solid; }
+.tip { background: var(--ua-soft); border-color: var(--ua); }
+.warn { background: #FDF2F2; border-color: #F8B4B4; }
+.tip .t, .warn .t { font-weight: 900; display: block; margin-bottom: 4px; }
+.tip .t { color: var(--ua-dark); }
+.warn .t { color: var(--bad); }
+
+/* ---------- 표 ---------- */
+.tbl-wrap { overflow-x: auto; margin: 14px 0; border-radius: 12px; border: 1px solid var(--line); }
+table { border-collapse: collapse; width: 100%; min-width: 480px; background: #fff; font-size: 15px; }
+th { background: var(--ink); color: #fff; font-weight: 800; padding: 10px 14px; text-align: left; font-size: 14px; }
+td { padding: 10px 14px; border-bottom: 1px solid var(--line); vertical-align: top; }
+tr:last-child td { border-bottom: none; }
+
+/* ---------- 데모 공통 ---------- */
+.demo { background: #F3F6FA; border: 2px dashed #C9D4E0; border-radius: 16px; padding: 22px; margin: 18px 0; }
+.demo-title { font-weight: 900; font-size: 15px; margin-bottom: 12px; }
+.badge-live {
+  font-size: 11px; color: #fff; background: var(--ua);
+  border-radius: 99px; padding: 2px 9px; margin-left: 6px; vertical-align: 2px;
+  animation: pulse 2s infinite;
+}
+@keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: .55; } }
+.btn {
+  font-family: inherit; font-size: 14.5px; font-weight: 800;
+  padding: 10px 18px; border-radius: 12px; cursor: pointer;
+  border: none; color: #fff; background: var(--ua);
+  box-shadow: 0 3px 10px rgba(124, 58, 237, .3);
+  transition: transform .15s, filter .15s;
+}
+.btn:hover { transform: translateY(-2px); filter: brightness(1.06); }
+.btn:active { transform: translateY(0) scale(.97); }
+.btn:disabled { opacity: .4; cursor: not-allowed; transform: none; }
+.btn.ghost { background: #fff; color: var(--ink); border: 2px solid var(--line); box-shadow: none; }
+.btn.ghost.on { border-color: var(--ua); color: var(--ua-dark); background: var(--ua-soft); }
+.btn-row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 12px; }
+.demo-note {
+  margin-top: 14px; font-size: 15px; font-weight: 600;
+  background: #fff; border-radius: 12px; padding: 12px 16px;
+  border-left: 4px solid var(--ua); min-height: 46px;
+}
+
+/* ---------- 산점도 + 회귀선 / 군집 ---------- */
+.scatter-wrap { background: #fff; border: 1px solid var(--line); border-radius: 12px; padding: 14px 14px 6px; margin-top: 12px; }
+.scatter { position: relative; height: 250px; border-left: 2px solid var(--line); border-bottom: 2px solid var(--line); margin: 6px 8px 4px 8px; }
+.scatter svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.scatter .dot {
+  position: absolute; width: 11px; height: 11px; border-radius: 50%;
+  background: #B9C4D2; box-shadow: 0 0 0 2px #fff;
+  transform: translate(-50%, 50%);
+  transition: background .5s;
+}
+.scatter .dot.k1 { background: var(--c1); }
+.scatter .dot.k2 { background: var(--c2); }
+.scatter .dot.ua { background: var(--ua); }
+.scatter .ctr {
+  position: absolute; font-size: 22px; line-height: 1;
+  transform: translate(-50%, 50%);
+  transition: left .8s cubic-bezier(.22, 1, .36, 1), bottom .8s cubic-bezier(.22, 1, .36, 1), opacity .4s;
+  text-shadow: 0 0 3px #fff, 0 0 3px #fff;
+  opacity: 0; pointer-events: none;
+}
+.ctr.c1 { color: var(--c1); } .ctr.c2 { color: var(--c2); }
+.ctr.show { opacity: 1; }
+.axis-x, .axis-y { font-size: 12.5px; font-weight: 700; color: var(--muted); }
+.axis-x { text-align: right; padding: 2px 8px 6px 0; }
+.axis-y { padding: 0 0 2px 8px; }
+.reg-line { stroke: var(--ua); stroke-width: 2.5; opacity: 0; transition: opacity .4s; }
+.reg-line.show { opacity: 1; }
+.err-badge { font-size: 13.5px; font-weight: 800; color: var(--ua-dark); background: var(--ua-soft); border-radius: 99px; padding: 3px 12px; display: none; }
+.err-badge.show { display: inline-block; }
+.legend { display: flex; gap: 16px; flex-wrap: wrap; font-size: 13.5px; font-weight: 700; color: var(--ink); margin: 8px 4px 0; }
+.legend .sw { display: inline-block; width: 12px; height: 12px; border-radius: 3px; margin-right: 5px; vertical-align: -1px; }
+
+/* ---------- 영수증 (연관 분석) ---------- */
+.rcp-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; margin: 8px 0 4px; }
+.receipt {
+  background: #fff; border: 1.5px solid var(--line); border-radius: 12px;
+  padding: 10px 12px; font-size: 13.5px;
+}
+.receipt .r-no { font-weight: 900; font-size: 12px; color: var(--muted); border-bottom: 1px dashed var(--line); padding-bottom: 4px; margin-bottom: 6px; }
+.receipt .r-item { display: block; padding: 1px 4px; border-radius: 5px; }
+.receipt .r-item.hit { background: var(--ua-soft); font-weight: 800; color: var(--ua-dark); }
+.rule-box {
+  display: none; margin-top: 14px; background: var(--ua-soft);
+  border: 1.5px solid var(--ua); border-radius: 14px; padding: 16px 20px;
+}
+.rule-box.show { display: block; animation: fadeUp .5s ease both; }
+.rule-box .r-rule { font-size: 17px; font-weight: 900; color: var(--ua-dark); }
+@keyframes fadeUp { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+
+/* ---------- 방법 고르기 챌린지 ---------- */
+.pick-grid { display: grid; gap: 10px; margin-top: 4px; }
+.pick-item { background: #fff; border: 2px solid var(--line); border-radius: 14px; padding: 14px 16px; transition: border-color .2s; }
+.pick-item .pi-q { font-weight: 800; font-size: 15px; margin-bottom: 8px; }
+.pick-item .pi-btns { display: flex; gap: 6px; flex-wrap: wrap; }
+.pick-item .pi-btns button {
+  font-family: inherit; font-size: 13.5px; font-weight: 700;
+  padding: 6px 14px; border-radius: 8px; border: 1.5px solid var(--line);
+  background: #fff; color: var(--muted); cursor: pointer; transition: all .15s;
+}
+.pick-item .pi-btns button:hover:not(:disabled) { border-color: var(--ua); color: var(--ua-dark); }
+.pick-item .pi-btns button:disabled { cursor: default; }
+.pick-item.right { border-color: var(--ok); background: #F0FBF7; }
+.pick-item.wrong { border-color: var(--bad); background: #FDF2F2; }
+.pick-item .pi-mark { font-size: 13.5px; font-weight: 700; margin-top: 6px; min-height: 20px; }
+.pick-item.right .pi-mark { color: var(--ok); }
+.pick-item.wrong .pi-mark { color: var(--bad); }
+
+footer { text-align: center; color: var(--muted); font-size: 13.5px; padding: 22px; }
+footer .series { font-weight: 800; color: var(--ua-dark); }
+
+/* ---------- 퀴즈 (시리즈 공통 엔진) ---------- */
+details.acc { border-radius: var(--radius); background: var(--card); box-shadow: var(--shadow); border: 1px solid var(--line); margin-bottom: 18px; overflow: hidden; }
+details.acc summary { cursor: pointer; list-style: none; padding: 20px 26px; font-weight: 900; font-size: 17px; display: flex; align-items: center; gap: 10px; }
+details.acc summary::-webkit-details-marker { display: none; }
+details.acc summary::after { content: '▼'; margin-left: auto; font-size: 12px; color: var(--ua); transition: transform .25s; }
+details.acc[open] summary::after { transform: rotate(180deg); }
+details.acc summary:hover { background: var(--ua-soft); }
+details.acc .acc-body { padding: 4px 26px 26px; }
+.q-item { margin-bottom: 24px; }
+.q-text { font-weight: 800; margin-bottom: 10px; }
+.q-text .qnum { display: inline-flex; align-items: center; justify-content: center; width: 26px; height: 26px; border-radius: 50%; margin-right: 8px; background: var(--ua); color: #fff; font-size: 13px; font-weight: 900; }
+.q-opts { display: grid; gap: 8px; }
+.q-opt { font-family: inherit; text-align: left; font-size: 15px; font-weight: 600; padding: 11px 16px; border-radius: 12px; cursor: pointer; border: 2px solid var(--line); background: #fff; color: var(--ink); transition: all .18s; }
+.q-opt:hover:not(:disabled) { border-color: var(--ua); background: var(--ua-soft); transform: translateX(4px); }
+.q-opt.correct { border-color: var(--ok); background: #F0FBF7; font-weight: 800; }
+.q-opt.wrong { border-color: var(--bad); background: #FDF2F2; animation: shake .35s; }
+.q-opt:disabled { cursor: default; opacity: .75; }
+.q-opt.correct:disabled, .q-opt.wrong:disabled { opacity: 1; }
+@keyframes shake { 0%,100% { transform: translateX(0); } 25% { transform: translateX(-6px); } 75% { transform: translateX(6px); } }
+.q-exp { display: none; margin-top: 10px; font-size: 14.5px; background: var(--ua-soft); border: 1.5px solid var(--ua); border-radius: 12px; padding: 12px 16px; }
+.q-exp.show { display: block; animation: fadeUp .3s both; }
+.quiz-status { font-size: 14px; font-weight: 800; color: var(--muted); margin-bottom: 16px; }
+.quiz-status b { color: var(--ua-dark); }
+
+@media (max-width: 640px) {
+  body { font-size: 15.5px; }
+  .card { padding: 22px 18px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <span class="unit-badge">데이터 과학 · 3단원 / 4</span>
+  <h1>데이터 <span class="ua">모델링과 평가</span></h1>
+  <p class="sub">패턴을 공식으로 — 예측하고, 묶고, 연결하고, 평가하자 🧠</p>
+</header>
+
+<nav class="toc">
+  <a href="#c1">3-1 모델과 도구</a>
+  <a href="#c2">3-2 회귀</a>
+  <a href="#c3">3-3 군집</a>
+  <a href="#c4">3-4 연관</a>
+  <a href="#c5">3-5 비교와 선택</a>
+  <a href="#quiz">📝 퀴즈</a>
+</nav>
+
+<main>
+
+  <!-- ═══════════ 3-1 모델과 도구 ═══════════ -->
+  <div class="card" id="c1">
+    <h2><span class="chip">3-1</span> 데이터 모델 — 세상을 요약한 지도 🗺️</h2>
+    <p class="lead">모델 = 데이터 속 패턴을 뽑아낸 <strong>요약 규칙</strong>. 지도가 세상을 단순화하듯, 모델은 데이터를 단순화한다.</p>
+    <p>2단원에서 "기온이 오르면 아이스크림 판매가 는다"는 <strong>관계</strong>를 발견했다. 이 관계를 <mark>"판매량 ≈ 기온 × 2.6 − 3"</mark> 같은 식으로 굳히면, 이제 <strong>내일 기온만 넣어도 판매량이 예측</strong>된다 — 이것이 데이터 모델이다. 지도가 실제 도로를 다 담지 않아도 길 찾기에 충분하듯, 모델도 <strong>완벽하지 않지만 유용</strong>하면 된다.</p>
+
+    <h3>모델을 만들 때 쓰는 도구들</h3>
+    <div class="tbl-wrap"><table>
+      <tr><th>도구</th><th>특징</th><th>이런 때</th></tr>
+      <tr><td><strong>스프레드시트</strong> (엑셀·구글 시트)</td><td>표·차트·추세선을 클릭으로</td><td>작은 데이터 빠른 분석</td></tr>
+      <tr><td><strong>블록·노코드 도구</strong> (엔트리 데이터 분석, Orange3)</td><td>코딩 없이 분석 흐름을 조립</td><td>분석 과정을 눈으로 익힐 때</td></tr>
+      <tr><td><strong>파이썬</strong> (pandas, scikit-learn)</td><td>대용량·자동화·자유도 최고</td><td>본격 분석과 기계학습</td></tr>
+      <tr><td><strong>티처블 머신</strong> 등 웹 도구</td><td>이미지·소리 학습을 브라우저에서</td><td>기계학습 원리 체험</td></tr>
+    </table></div>
+    <div class="tip"><span class="t">💡 도구보다 질문이 먼저</span>
+      어떤 도구든 하는 일은 같다 — 데이터에서 패턴을 찾아 모델로 굳히는 것. <mark>"무엇을 예측/발견하고 싶은가"</mark>가 정해져야 도구도 고를 수 있다.
+    </div>
+  </div>
+
+  <!-- ═══════════ 3-2 회귀 ═══════════ -->
+  <div class="card" id="c2">
+    <h2><span class="chip">3-2</span> 회귀 — 점들 사이로 선을 긋는 두 가지 방법 📈</h2>
+    <p class="lead">숫자를 <strong>예측</strong>하는 모델. 같은 선을 <strong>통계</strong>는 공식으로, <strong>기계학습</strong>은 반복 연습으로 긋는다.</p>
+    <p>2단원의 기온×아이스크림 산점도를 다시 불러왔다. 점들의 흐름을 대표하는 <strong>직선 하나</strong>를 그으면, 그 선이 곧 예측 모델이다. 긋는 방법이 두 가지다:</p>
+
+    <div class="demo">
+      <div class="demo-title">🎮 회귀선 긋기 대결 — 통계 vs 기계학습 <span class="badge-live">LIVE</span></div>
+      <div class="btn-row" style="margin-bottom:4px">
+        <button class="btn" id="regStat">📐 통계로 긋기 (공식 한 방)</button>
+        <button class="btn" id="regML">🤖 기계학습으로 긋기 (반복 학습)</button>
+        <button class="btn ghost" id="regReset">↺ 지우기</button>
+        <span class="err-badge" id="regErr"></span>
+      </div>
+      <div class="scatter-wrap">
+        <div class="axis-y">판매량 ↑</div>
+        <div class="scatter" id="regScatter">
+          <svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+            <line class="reg-line" id="regLine" x1="0" y1="50" x2="100" y2="50"></line>
+          </svg>
+        </div>
+        <div class="axis-x">기온 →</div>
+      </div>
+      <div class="demo-note" id="regNote">두 버튼을 각각 눌러 보자 — 선을 "어떻게" 긋는지가 다르다!</div>
+    </div>
+
+    <div class="tbl-wrap"><table>
+      <tr><th>비교</th><th>📐 통계적 회귀</th><th>🤖 기계학습 회귀</th></tr>
+      <tr><td><strong>선 긋는 법</strong></td><td>오차를 최소화하는 공식으로 <strong>한 번에 계산</strong></td><td>아무 선에서 시작해 <strong>오차를 줄이며 반복 수정</strong></td></tr>
+      <tr><td><strong>결과</strong></td><td colspan="2" style="text-align:center">이 데이터에서는 <strong>거의 같은 선</strong>에 도착한다!</td></tr>
+      <tr><td><strong>강점</strong></td><td>식이 눈에 보여 <strong>해석이 쉽다</strong></td><td>속성이 수십 개인 <strong>복잡한 문제로 확장</strong>이 쉽다</td></tr>
+    </table></div>
+    <div class="tip"><span class="t">💡 해석까지가 모델링</span>
+      선의 기울기는 <mark>"기온이 1도 오르면 판매가 약 몇 개 는다"</mark>는 뜻이다. 숫자를 뽑는 것보다, 그 숫자가 <strong>무슨 의미인지 말할 수 있는 것</strong>이 분석의 완성이다.
+    </div>
+  </div>
+
+  <!-- ═══════════ 3-3 군집 ═══════════ -->
+  <div class="card" id="c3">
+    <h2><span class="chip">3-3</span> 군집 — 비슷한 것끼리 저절로 모인다 🫂</h2>
+    <p class="lead">정답 없이, <strong>유사성(가까움)</strong>만으로 그룹을 발견하는 모델.</p>
+    <p>학생 12명의 "주중 공부 시간 × 게임 시간" 데이터가 있다. 누가 누구와 비슷할까? 군집 분석은 <mark>점 사이의 거리 = 유사성</mark>으로 측정해서, 가까운 점끼리 자동으로 묶는다. 대표 알고리즘 <strong>k-평균(k-means)</strong>을 한 단계씩 실행해 보자.</p>
+
+    <div class="demo">
+      <div class="demo-title">🎮 k-평균 군집 시뮬레이터 <span class="badge-live">LIVE</span></div>
+      <div class="scatter-wrap">
+        <div class="axis-y">게임 시간 ↑</div>
+        <div class="scatter" id="kmScatter">
+          <span class="ctr c1" id="ctr1">★</span>
+          <span class="ctr c2" id="ctr2">★</span>
+        </div>
+        <div class="axis-x">공부 시간 →</div>
+      </div>
+      <div class="legend"><span><span class="sw" style="background:var(--c1)"></span>군집 1</span><span><span class="sw" style="background:var(--c2)"></span>군집 2</span><span>★ = 군집의 중심</span></div>
+      <div class="btn-row">
+        <button class="btn" id="kmNext">다음 단계 ▶</button>
+        <button class="btn ghost" id="kmReset">↺ 처음부터</button>
+      </div>
+      <div class="demo-note" id="kmNote">[0단계] 학생 12명의 점이 찍혀 있다. 아직 아무 그룹도 없다 — 컴퓨터는 어떻게 그룹을 "발견"할까?</div>
+    </div>
+
+    <div class="warn"><span class="t">🚨 오개념 주의보 — 군집의 이름은 사람이 붙인다</span>
+      컴퓨터는 "군집 1, 군집 2"까지만 찾아 준다. 그것이 <mark>"공부형 그룹"인지 "게임형 그룹"인지 해석하고 이름 붙이는 것은 분석하는 사람의 몫</mark>이다. 해석 없는 군집은 그냥 색칠된 점이다.
+    </div>
+  </div>
+
+  <!-- ═══════════ 3-4 연관 ═══════════ -->
+  <div class="card" id="c4">
+    <h2><span class="chip">3-4</span> 연관 분석 — 함께 등장하는 것을 찾아라 🛒</h2>
+    <p class="lead">"A를 산 사람은 B도 산다" — 데이터 속 <strong>단짝</strong>을 찾는 모델.</p>
+    <p>매점의 영수증 8장이 있다. 어떤 품목들이 <mark>유난히 자주 함께</mark> 팔릴까? 눈으로 먼저 찾아보고, 버튼으로 확인하자.</p>
+
+    <div class="demo">
+      <div class="demo-title">🎮 장바구니 연관 규칙 찾기 <span class="badge-live">LIVE</span></div>
+      <div class="rcp-grid" id="rcpGrid"></div>
+      <div class="btn-row">
+        <button class="btn" id="rcpBtn">🔍 연관 규칙 찾기</button>
+        <button class="btn ghost" id="rcpReset" disabled>↺ 초기화</button>
+      </div>
+      <div class="rule-box" id="ruleBox">
+        <div class="r-rule">🍜 라면 → 🍙 삼각김밥</div>
+        <p style="font-size:14.5px;margin-top:6px">라면이 든 영수증 <strong>6장 중 5장</strong>에 삼각김밥이 함께 있다 (83%). 우연이라기엔 너무 자주 — 둘은 <strong>단짝 품목</strong>이다!</p>
+        <p style="font-size:14.5px;margin:4px 0 0">💡 <strong>활용</strong>: 두 품목을 나란히 진열하기 · 세트 할인 만들기 · "라면과 함께 구매된 상품" 추천하기</p>
+      </div>
+      <div class="demo-note" id="rcpNote">유튜브의 "이 영상을 본 사람이 함께 본 영상", 쇼핑몰의 "함께 구매한 상품"이 전부 이 원리다.</div>
+    </div>
+  </div>
+
+  <!-- ═══════════ 3-5 비교와 선택 ═══════════ -->
+  <div class="card" id="c5">
+    <h2><span class="chip">3-5</span> 평가와 선택 — 어떤 모델이 좋은 모델인가 ⚖️</h2>
+    <p class="lead">모델은 만들었다고 끝이 아니다 — <strong>얼마나 잘 맞는지 재고</strong>, 목적에 맞는 방법을 <strong>골라야</strong> 한다.</p>
+
+    <h3>평가 — 오차로 승부한다</h3>
+    <p>예측 모델의 성적표는 <strong>오차(실제 값 − 예측 값)</strong>다. 아이스크림 판매 예측 모델 두 개를 새로운 일주일 데이터로 시험 보면:</p>
+    <div class="tbl-wrap"><table>
+      <tr><th>모델</th><th>하루 평균 오차</th><th>평가</th></tr>
+      <tr><td>모델 A (기온만 사용)</td><td><strong>5.8개</strong></td><td>기본은 한다</td></tr>
+      <tr><td>모델 B (기온 + 요일 사용)</td><td><strong>3.2개</strong> ✅</td><td>더 정확 — 채택!</td></tr>
+    </table></div>
+    <div class="warn"><span class="t">🚨 오개념 주의보 — 배운 문제로 시험 보지 않기</span>
+      모델을 만들 때 쓴 데이터로 평가하면 성적이 부풀려진다(족보 그대로 시험에 나온 셈). 그래서 데이터를 <mark>학습용과 평가용으로 나눠</mark>, 모델이 <strong>처음 보는 데이터</strong>로 시험을 본다.
+    </div>
+
+    <h3>선택 — 목적이 방법을 고른다</h3>
+    <div class="tbl-wrap"><table>
+      <tr><th>하고 싶은 것</th><th>알맞은 방법</th></tr>
+      <tr><td><strong>숫자를 예측</strong>하고 싶다 (내일 판매량은?)</td><td>📈 회귀 (3-2)</td></tr>
+      <tr><td>비슷한 것끼리 <strong>그룹을 발견</strong>하고 싶다 (고객 유형은?)</td><td>🫂 군집 (3-3)</td></tr>
+      <tr><td><strong>함께 일어나는 것</strong>을 찾고 싶다 (무엇을 추천할까?)</td><td>🛒 연관 (3-4)</td></tr>
+    </table></div>
+
+    <div class="demo">
+      <div class="demo-title">🎮 방법 고르기 챌린지 — 상황에 맞는 분석은? <span class="badge-live">LIVE</span> · 점수 <strong id="pickScore">0 / 3</strong></div>
+      <div class="pick-grid" id="pickGrid"></div>
+      <div class="demo-note" id="pickNote">세 상황을 모두 풀어 보자 — 목적을 읽으면 방법이 보인다!</div>
+    </div>
+
+    <div class="tip"><span class="t">💡 그리고 항상 — 두 가지 이상으로</span>
+      2단원의 규칙이 여기서도 이어진다. 방법을 하나 골랐어도 <strong>다른 방법과 결과를 비교·평가</strong>해야 온전한 결론이다. 이 습관이 4단원 프로젝트의 심사 기준이 된다.
+    </div>
+  </div>
+
+  <!-- ═══════════ 퀴즈 ═══════════ -->
+  <details class="acc" id="quiz">
+    <summary>📝 3단원 개념 확인 퀴즈</summary>
+    <div class="acc-body">
+      <p class="quiz-status" id="quizStatus"></p>
+      <div id="quizWrap"></div>
+    </div>
+  </details>
+
+</main>
+
+<footer><span class="series">데이터 과학 시리즈 3/4</span> · 데이터 모델링과 평가 · 단일 HTML · 오프라인 실행</footer>
+
+<script>
+'use strict';
+
+/* ==========================================================
+   데모 1 — 회귀선 긋기 (통계 vs 기계학습)
+   ========================================================== */
+(function () {
+  const PTS = [[8,16],[14,24],[21,30],[29,38],[37,44],[45,52],[54,57],[61,66],[69,71],[77,79],[85,84],[92,90]];
+  const sc = document.getElementById('regScatter');
+  PTS.forEach(p => {
+    const d = document.createElement('div');
+    d.className = 'dot ua';
+    d.style.left = p[0] + '%';
+    d.style.bottom = p[1] + '%';
+    sc.appendChild(d);
+  });
+  const line = document.getElementById('regLine');
+  const note = document.getElementById('regNote');
+  const err = document.getElementById('regErr');
+  const bStat = document.getElementById('regStat');
+  const bML = document.getElementById('regML');
+  const bReset = document.getElementById('regReset');
+  const FINAL = { y1: 91, y2: 3 }; // svg 좌표 (y 반전)
+  let timer = null;
+  function setLine(y1, y2) { line.setAttribute('y1', y1); line.setAttribute('y2', y2); }
+  function reset() {
+    if (timer) { clearInterval(timer); timer = null; }
+    line.classList.remove('show'); err.classList.remove('show');
+    bStat.disabled = false; bML.disabled = false;
+    note.textContent = '두 버튼을 각각 눌러 보자 — 선을 "어떻게" 긋는지가 다르다!';
+  }
+  bStat.addEventListener('click', () => {
+    reset();
+    setLine(FINAL.y1, FINAL.y2);
+    line.classList.add('show');
+    err.textContent = '평균 오차: 11'; err.classList.add('show');
+    note.innerHTML = '📐 <b>공식 한 방!</b> 통계적 회귀는 "모든 점과의 오차 합이 최소가 되는 선"을 수학 공식으로 <b>즉시 계산</b>한다. 이 선이 곧 <b>판매량 ≈ 기울기 × 기온 + 시작값</b>이라는 식이다.';
+  });
+  bML.addEventListener('click', () => {
+    reset();
+    bML.disabled = true;
+    const steps = [
+      { y1: 50, y2: 50, e: 342, msg: '🤖 1회차: 일단 아무렇게나(수평선) 그어 본다. 평균 오차 342 — 형편없다!' },
+      { y1: 65, y2: 35, e: 197, msg: '🤖 2회차: 오차가 줄어드는 방향으로 기울기를 조금 수정. 오차 197.' },
+      { y1: 80, y2: 18, e: 63,  msg: '🤖 3회차: 또 수정. 오차 63 — 점점 점들에 붙는다!' },
+      { y1: FINAL.y1, y2: FINAL.y2, e: 11, msg: '🤖 <b>수렴!</b> 오차 11에서 더 줄지 않는다. 통계 공식이 그은 선과 <b>거의 같은 자리</b>다 — 방법은 달라도 도착지는 같다!' },
+    ];
+    line.classList.add('show'); err.classList.add('show');
+    let i = 0;
+    function step() {
+      const s = steps[i];
+      setLine(s.y1, s.y2);
+      err.textContent = '평균 오차: ' + s.e;
+      note.innerHTML = s.msg;
+      i++;
+      if (i >= steps.length) { clearInterval(timer); timer = null; bML.disabled = false; }
+    }
+    step();
+    timer = setInterval(step, 1300);
+  });
+  bReset.addEventListener('click', reset);
+})();
+
+/* ==========================================================
+   데모 2 — k-평균 군집 시뮬레이터
+   ========================================================== */
+(function () {
+  const A = [[65,22],[74,30],[82,16],[70,10],[86,26],[62,32]]; // 공부↑ 게임↓
+  const B = [[15,72],[25,82],[32,66],[20,88],[36,76],[12,62]]; // 공부↓ 게임↑
+  const PTS = A.concat(B);
+  const sc = document.getElementById('kmScatter');
+  const dots = PTS.map(p => {
+    const d = document.createElement('div');
+    d.className = 'dot';
+    d.style.left = p[0] + '%';
+    d.style.bottom = p[1] + '%';
+    sc.appendChild(d);
+    return d;
+  });
+  const c1 = document.getElementById('ctr1');
+  const c2 = document.getElementById('ctr2');
+  const note = document.getElementById('kmNote');
+  const next = document.getElementById('kmNext');
+  function setCtr(el, x, y) { el.style.left = x + '%'; el.style.bottom = y + '%'; }
+  // A그룹은 (80,60)★c2에, B그룹은 (10,40)★c1에 가깝게 초기 배치
+  const STEPS = [
+    { run() { setCtr(c1, 10, 40); setCtr(c2, 80, 60); c1.classList.add('show'); c2.classList.add('show'); },
+      msg: '[1단계] 중심(★) 2개를 <b>아무 데나</b> 놓는다. 시작은 대충이어도 된다!' },
+    { run() { dots.forEach((d, i) => d.classList.add(i < 6 ? 'k2' : 'k1')); },
+      msg: '[2단계] 각 점을 <b>더 가까운 중심</b>의 색으로 칠한다 — 여기서 <b>거리가 곧 유사성</b>이다. 오른쪽 아래 점들은 주황★, 왼쪽 위 점들은 파랑★ 소속!' },
+    { run() { setCtr(c1, 23, 74); setCtr(c2, 73, 23); },
+      msg: '[3단계] 각 중심이 <b>자기 그룹의 한가운데(평균 위치)</b>로 이동한다. ★이 미끄러지는 것을 보라!' },
+    { run() {},
+      msg: '[4단계] 새 중심 기준으로 다시 배정해 봐도 <b>바뀌는 점이 없다</b> → 안정. 군집 완성! 🎉' },
+    { run() {},
+      msg: '💡 <b>해석</b>: 주황 군집 = "공부 시간 많고 게임 적은 유형", 파랑 군집 = "게임 시간 많은 유형". 이제 유형별로 다른 학습 코칭을 설계할 수 있다 — 이것이 군집 분석의 쓸모다!' },
+  ];
+  let step = 0;
+  next.addEventListener('click', () => {
+    if (step < STEPS.length) {
+      STEPS[step].run();
+      note.innerHTML = STEPS[step].msg;
+      step++;
+      if (step === STEPS.length) next.disabled = true;
+    }
+  });
+  document.getElementById('kmReset').addEventListener('click', () => {
+    step = 0; next.disabled = false;
+    dots.forEach(d => d.classList.remove('k1', 'k2'));
+    c1.classList.remove('show'); c2.classList.remove('show');
+    note.innerHTML = '[0단계] 학생 12명의 점이 찍혀 있다. 아직 아무 그룹도 없다 — 컴퓨터는 어떻게 그룹을 "발견"할까?';
+  });
+})();
+
+/* ==========================================================
+   데모 3 — 장바구니 연관 규칙
+   ========================================================== */
+(function () {
+  const RECEIPTS = [
+    ['라면', '삼각김밥', '콜라'], ['라면', '삼각김밥'], ['샌드위치', '주스'],
+    ['라면', '삼각김밥', '물'], ['초코바'], ['라면', '삼각김밥'],
+    ['라면', '물'], ['라면', '삼각김밥', '젤리'],
+  ];
+  const HIT = ['라면', '삼각김밥'];
+  const grid = document.getElementById('rcpGrid');
+  RECEIPTS.forEach((items, i) => {
+    const div = document.createElement('div');
+    div.className = 'receipt';
+    div.innerHTML = '<div class="r-no">영수증 #' + (i + 1) + '</div>' +
+      items.map(it => '<span class="r-item" data-it="' + it + '">· ' + it + '</span>').join('');
+    grid.appendChild(div);
+  });
+  const btn = document.getElementById('rcpBtn');
+  const reset = document.getElementById('rcpReset');
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.receipt').forEach(r => {
+      const names = Array.from(r.querySelectorAll('.r-item')).map(el => el.dataset.it);
+      if (HIT.every(h => names.includes(h))) {
+        r.querySelectorAll('.r-item').forEach(el => { if (HIT.includes(el.dataset.it)) el.classList.add('hit'); });
+      }
+    });
+    document.getElementById('ruleBox').classList.add('show');
+    btn.disabled = true; reset.disabled = false;
+  });
+  reset.addEventListener('click', () => {
+    document.querySelectorAll('.r-item').forEach(el => el.classList.remove('hit'));
+    document.getElementById('ruleBox').classList.remove('show');
+    btn.disabled = false; reset.disabled = true;
+  });
+})();
+
+/* ==========================================================
+   데모 4 — 방법 고르기 챌린지
+   ========================================================== */
+(function () {
+  const CASES = [
+    { q: '① 내일 기온이 28도라면, 음료수가 몇 개 팔릴지 알고 싶다.', ans: '회귀', why: '숫자(판매량)를 예측 → 회귀' },
+    { q: '② 취향이 비슷한 학생끼리 자동으로 모둠을 짜고 싶다.', ans: '군집', why: '비슷한 것끼리 그룹 발견 → 군집' },
+    { q: '③ 이 책을 빌린 학생에게 "함께 읽을 책"을 추천하고 싶다.', ans: '연관', why: '함께 일어나는 짝 찾기 → 연관' },
+  ];
+  const METHODS = ['회귀', '군집', '연관'];
+  let score = 0, done = 0;
+  const grid = document.getElementById('pickGrid');
+  const note = document.getElementById('pickNote');
+  CASES.forEach(c => {
+    const div = document.createElement('div');
+    div.className = 'pick-item';
+    div.innerHTML = '<div class="pi-q">' + c.q + '</div>' +
+      '<div class="pi-btns">' + METHODS.map(m => '<button data-m="' + m + '">' + m + '</button>').join('') + '</div>' +
+      '<div class="pi-mark"></div>';
+    div.querySelectorAll('button').forEach(b => {
+      b.addEventListener('click', () => {
+        div.querySelectorAll('button').forEach(x => x.disabled = true);
+        const right = b.dataset.m === c.ans;
+        if (right) score++;
+        done++;
+        div.classList.add(right ? 'right' : 'wrong');
+        div.querySelector('.pi-mark').textContent = (right ? '✓ 정답! ' : '✗ 정답은 ' + c.ans + ' — ') + c.why;
+        document.getElementById('pickScore').textContent = score + ' / 3';
+        if (done === 3) {
+          note.innerHTML = score === 3
+            ? '🏆 완벽! 핵심은 목적의 <b>동사</b>다 — 예측한다=회귀, 묶는다=군집, 함께 찾는다=연관.'
+            : '📖 다시 보자 — 목적의 <b>동사</b>에 답이 있다: 숫자를 <b>예측</b>=회귀, 그룹을 <b>발견</b>=군집, 짝을 <b>찾기</b>=연관.';
+        }
+      });
+    });
+    grid.appendChild(div);
+  });
+})();
+
+/* ==========================================================
+   퀴즈 엔진 (시리즈 공통)
+   ========================================================== */
+const QUIZ = [
+  { q: '"데이터 모델"에 대한 설명으로 가장 알맞은 것은?',
+    opts: ['데이터를 예쁘게 정리한 표', '데이터 속 패턴을 요약해 예측·판단에 쓰는 규칙', '데이터를 저장하는 커다란 창고', '데이터를 수집하는 설문지'], ans: 1,
+    exp: '모델은 지도와 같다 — 세상을 단순화하지만 길 찾기(예측)에 충분한 요약 규칙. 창고는 데이터베이스(1단원), 수집은 2단원의 일이다.' },
+  { q: '통계적 회귀와 기계학습 회귀의 차이를 바르게 설명한 것은?',
+    opts: ['둘은 완전히 다른 선을 긋는다', '통계는 공식으로 한 번에, 기계학습은 오차를 줄이며 반복 수정해 선을 찾는다', '기계학습이 항상 더 정확하다', '통계 회귀는 컴퓨터 없이만 가능하다'], ans: 1,
+    exp: '데모에서 봤듯 도착지(선)는 거의 같다. 다른 것은 "가는 방법" — 공식 한 방 vs 반복 학습. 복잡한 문제로 확장할 때는 기계학습 방식이 유리하다.' },
+  { q: 'k-평균 군집에서 두 학생이 "비슷하다"고 판단하는 기준은?',
+    opts: ['이름이 비슷하다', '산점도에서 두 점 사이의 거리가 가깝다', '데이터를 입력한 순서가 이웃이다', '선생님이 지정한 그룹이 같다'], ans: 1,
+    exp: '군집의 핵심 = 유사성이고, 유사성의 측정 = 거리다. 가까운 점끼리 같은 중심(★)에 소속되며 그룹이 만들어진다. 정답(라벨) 없이 그룹을 "발견"하는 것이 특징!' },
+  { q: '"이 상품을 산 사람이 함께 산 상품" 추천 기능의 바탕이 되는 분석은?',
+    opts: ['회귀 분석', '군집 분석', '연관 분석', '오차 분석'], ans: 2,
+    exp: '함께 등장하는 짝을 찾는 것이 연관 분석이다. 장바구니 데모의 "라면 → 삼각김밥"과 유튜브의 "함께 본 영상"이 같은 원리.' },
+  { q: '예측 모델을 평가할 때 "만들 때 쓴 데이터"가 아닌 "새 데이터"로 시험하는 이유는?',
+    opts: ['새 데이터가 더 많아서', '배운 문제로 시험 보면 실력이 부풀려져 보이기 때문', '오래된 데이터는 지워지기 때문', '새 데이터가 더 정확한 값이라서'], ans: 1,
+    exp: '족보로만 시험 보면 100점이 나와도 실력을 알 수 없다. 모델도 처음 보는 데이터에서의 오차로 평가해야 진짜 성능이 보인다 — 그래서 학습용/평가용을 나눈다.' },
+];
+
+let answered = 0;
+(function renderQuiz() {
+  const wrap = document.getElementById('quizWrap');
+  QUIZ.forEach((item, qi) => {
+    const div = document.createElement('div');
+    div.className = 'q-item';
+    const qt = document.createElement('div');
+    qt.className = 'q-text';
+    qt.innerHTML = '<span class="qnum">' + (qi + 1) + '</span>' + item.q;
+    div.appendChild(qt);
+    const opts = document.createElement('div');
+    opts.className = 'q-opts';
+    const exp = document.createElement('div');
+    exp.className = 'q-exp';
+    exp.innerHTML = '💡 ' + item.exp;
+    item.opts.forEach((label, oi) => {
+      const b = document.createElement('button');
+      b.className = 'q-opt';
+      b.textContent = ['①', '②', '③', '④'][oi] + ' ' + label;
+      b.addEventListener('click', () => {
+        if (b.disabled) return;
+        opts.querySelectorAll('.q-opt').forEach(o => o.disabled = true);
+        if (oi === item.ans) { b.classList.add('correct'); b.textContent += '  ✅ 정답!'; }
+        else { b.classList.add('wrong'); b.textContent += '  ❌'; opts.children[item.ans].classList.add('correct'); }
+        exp.classList.add('show');
+        answered++;
+        updateStatus();
+      });
+      opts.appendChild(b);
+    });
+    div.appendChild(opts);
+    div.appendChild(exp);
+    wrap.appendChild(div);
+  });
+  updateStatus();
+})();
+function updateStatus() {
+  const el = document.getElementById('quizStatus');
+  el.innerHTML = answered >= QUIZ.length
+    ? '🎉 <b>퀴즈 완료!</b> 모델링 무기를 모두 장착했다. 마지막은 4단원 — 나만의 데이터 과학 프로젝트!'
+    : '진행: <b>' + answered + '</b> / ' + QUIZ.length + ' 문항 — 보기를 클릭하면 바로 채점된다!';
+}
+</script>
+</body>
+</html>
