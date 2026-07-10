@@ -509,7 +509,7 @@ footer .series { font-weight: 800; color: var(--ua-dark); }
   btn.addEventListener('click', () => {
     result.classList.add('show');
     btn.disabled = true; reset.disabled = false;
-    note.innerHTML = '🔑 두 표 모두에 있는 <b>학번</b>이 열쇠(공통 속성)가 되어 행들이 짝을 찾았다. 이서연(10102)은 2권을 빌려서 <b>두 줄</b>이 된 것도 확인! 이제 "1반이 좋아하는 책"이라는 새 질문에 답할 수 있다.';
+    note.innerHTML = '🔑 두 표 모두에 있는 <b>학번</b>이 열쇠(공통 속성)가 되어 행들이 짝을 찾았다. 이서연(10102)은 2권을 빌려서 <b>두 줄</b>이 됐고, 박지훈(10201)은 대출 기록이 없어 <b>합친 표에서 빠졌다</b> — 짝이 없는 행은 합쳐지지 않는다. 이제 "1반이 좋아하는 책"이라는 새 질문에 답할 수 있다!';
   });
   reset.addEventListener('click', () => {
     result.classList.remove('show');

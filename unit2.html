@@ -465,15 +465,16 @@ details.acc .acc-body { padding: 4px 26px 26px; }
   const btn = document.getElementById('outBtn');
   const reset = document.getElementById('outReset');
   function render(withOutlier) {
-    const data = withOutlier ? HEIGHTS : HEIGHTS.filter(h => h < 1000);
-    const max = Math.max.apply(null, data);
-    bars.innerHTML = data.map((h, i) =>
-      '<div class="bar-row' + (h > 1000 ? ' out' : '') + '">' +
-      '<span class="bar-name">학생 ' + (i + 1) + '</span>' +
-      '<div class="bar-track"><div class="bar-fill" style="width:' + (h / max * 100) + '%"></div></div>' +
-      '<span class="bar-val">' + h + 'cm</span></div>'
+    // 제거 후에도 학생 번호는 원래 번호 유지 (7번만 사라져야 함)
+    const rows = HEIGHTS.map((h, i) => ({ h, no: i + 1 })).filter(r => withOutlier || r.h < 1000);
+    const max = Math.max.apply(null, rows.map(r => r.h));
+    bars.innerHTML = rows.map(r =>
+      '<div class="bar-row' + (r.h > 1000 ? ' out' : '') + '">' +
+      '<span class="bar-name">학생 ' + r.no + '</span>' +
+      '<div class="bar-track"><div class="bar-fill" style="width:' + (r.h / max * 100) + '%"></div></div>' +
+      '<span class="bar-val">' + r.h + 'cm</span></div>'
     ).join('');
-    const avg = data.reduce((s, h) => s + h, 0) / data.length;
+    const avg = rows.reduce((s, r) => s + r.h, 0) / rows.length;
     avgEl.textContent = avg.toFixed(1) + 'cm';
     avgEl.style.color = withOutlier ? 'var(--bad)' : 'var(--ok)';
     tagEl.textContent = withOutlier ? '…우리 반이 거인 학급?!' : '— 이제 말이 된다 ✅';
