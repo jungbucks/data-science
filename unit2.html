@@ -270,9 +270,11 @@ details.acc .acc-body { padding: 4px 26px 26px; }
     <h3>수집했다면 — 데이터의 특성부터 살핀다</h3>
     <div class="tbl-wrap"><table>
       <tr><th>확인할 것</th><th>질문</th><th>위 설문이라면</th></tr>
-      <tr><td><strong>양</strong></td><td>몇 건인가? 결론 내리기에 충분한가?</td><td>30명? 100명? 전교생 800명 중 몇 %?</td></tr>
+      <tr><td><strong>출처·방법</strong></td><td>누가, 언제, 어떻게 모았나?</td><td>체육대회 직후? 익명 설문? 손들기?</td></tr>
+      <tr><td><strong>규모</strong></td><td>몇 건인가? 결론 내리기에 충분한가?</td><td>30명? 100명? 전교생 800명 중 몇 %?</td></tr>
       <tr><td><strong>대상</strong></td><td>표본이 전체를 대표하는가?</td><td>특정 동아리만? 무작위인가?</td></tr>
-      <tr><td><strong>시점·방법</strong></td><td>언제, 어떻게 모았나?</td><td>체육대회 직후? 익명 설문? 손들기?</td></tr>
+      <tr><td><strong>속성별 자료형</strong></td><td>각 속성이 숫자인가, 문자인가, 날짜인가?</td><td>종목=문자, 응답 수=숫자, 조사일=날짜</td></tr>
+      <tr><td><strong>통계적 특성</strong></td><td>평균·최솟값·최댓값을 훑어봤는가?</td><td>최댓값이 이상하게 크면 이상치 신호(2-2!)</td></tr>
     </table></div>
     <div class="tip"><span class="t">💡 무작위(random)가 왜 강력한가</span>
       무작위 추출은 특정 집단의 목소리가 과대 대표되는 것을 막는, <strong>편향을 줄이는 가장 기본 장치</strong>다. 조사 결과를 볼 때도 항상 물어보자 — <mark>"이거 누구한테 물어본 거지?"</mark>
@@ -393,9 +395,10 @@ details.acc .acc-body { padding: 4px 26px 26px; }
       <div class="demo-note" id="viewNote">📊 합계 렌즈의 결론: <b>"컵라면 압승(170 vs 124), 컵라면을 더 준비하자."</b> …과연 그럴까? 렌즈를 바꿔 보자.</div>
     </div>
 
-    <div class="tip"><span class="t">💡 그래서 규칙 — 분석은 두 가지 이상으로</span>
+    <div class="tip"><span class="t">💡 그래서 규칙 — 분석은 두 가지 이상으로, 그리고 "이유"까지</span>
       합계 렌즈는 "지금까지의 챔피언"을, 흐름 렌즈는 "다음 달의 챔피언"을 보여줬다. 어느 한쪽만 보면 절반의 진실이다.
-      같은 데이터에 <strong>서로 다른 분석 방법을 적용해 결과를 비교</strong>하는 것 — 4단원 프로젝트의 필수 규칙이기도 하다.
+      결과가 달라진 <strong>이유를 방법과 연관지어 설명</strong>할 수 있어야 진짜 비교다 — 합계는 <mark>기간 전체를 하나로 뭉뚱그려</mark> 보고, 흐름은 <mark>시간 순서를 살려서</mark> 보기 때문에, 같은 데이터의 다른 얼굴이 나온 것이다.
+      같은 데이터에 서로 다른 분석 방법을 적용해 결과를 비교하는 것 — 4단원 프로젝트의 필수 규칙이기도 하다.
     </div>
     <div class="tip"><span class="t">📖 용어 정리 — 지금 한 것이 "탐색적 데이터 분석(EDA)"</span>
       이 단원에서 한 일 — 그려 보고(2-2), 관계를 찾고(2-3), 렌즈를 바꿔 보는(2-4) 이 과정 전체를

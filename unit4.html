@@ -291,11 +291,13 @@ details.acc .acc-body { padding: 4px 26px 26px; }
   <div class="card" id="s3">
     <h2><span class="chip">STEP 3</span> 두 가지 이상의 방법으로 분석하기 ⚔️</h2>
     <p class="lead">시리즈 내내 이어진 규칙 — <strong>한 가지 렌즈는 절반의 진실</strong>(2-4단원)이다. 최소 두 방법으로 분석하고 비교하라.</p>
+    <p>비교 대상은 분석 방법만이 아니다 — 같은 데이터라도 <strong>전처리를 다르게</strong> 하면(이상치를 빼느냐 두느냐, 정규화를 하느냐) 결과가 달라진다. 그리고 비교의 목적은 구경이 아니라 <mark>가장 적절한 모델링 방법을 골라 설계하는 것</mark>이다.</p>
     <div class="tbl-wrap"><table>
       <tr><th>조합 예시</th><th>방법 ①</th><th>방법 ②</th><th>비교 포인트</th></tr>
       <tr><td>잔반 프로젝트</td><td>요일별 <strong>평균 비교</strong> (막대)</td><td>기온×잔반 <strong>회귀</strong> (3-2)</td><td>요일 효과 vs 날씨 효과, 어느 쪽이 큰가?</td></tr>
       <tr><td>독서 프로젝트</td><td>대출 기록 <strong>연관 분석</strong> (3-4)</td><td>독서 성향 <strong>군집</strong> (3-3)</td><td>추천 규칙이 유형별로 달라지는가?</td></tr>
       <tr><td>공부 습관 프로젝트</td><td>공부시간×성적 <strong>산점도·회귀</strong></td><td>주차별 <strong>흐름 분석</strong> (2-4)</td><td>전체 경향과 최근 추세가 일치하는가?</td></tr>
+      <tr><td>전처리 비교 (어느 프로젝트든)</td><td>이상치 <strong>포함</strong> 분석</td><td>이상치 <strong>제거</strong> 후 분석 (2-2)</td><td>결론이 뒤집히면 → 이상치 처리 근거를 반드시 기록</td></tr>
     </table></div>
     <div class="ws">
       <div class="ws-row2">
@@ -347,6 +349,9 @@ details.acc .acc-body { padding: 4px 26px 26px; }
       <li>결론이 <strong>데이터가 말한 범위</strong>를 넘지 않았나? (관계를 원인으로 착각하지 않았나 — 2-3)</li>
       <li>다시 한다면 <strong>무엇을 다르게</strong> 할 것인가?</li>
     </ul>
+    <div class="tip"><span class="t">💡 성찰은 마지막 장식이 아니라 "수정 버튼"이다</span>
+      성찰에서 문제가 보였다면(편향 발견, 윤리 문제, 빗나간 예측) — 보고서에 반성문만 쓰지 말고 <strong>모델로 돌아가 고치고 다시 평가</strong>하라. 그리고 결론을 공유할 때는 <mark>어디까지 일반화되는지</mark>를 함께 밝혀라: "우리 반에서는 ~했다. 다른 학년·학교에도 통하는지는 표본을 넓혀 확인이 필요하다" — 이 한 문장이 분석의 격을 바꾼다.
+    </div>
     <h3>사회적 영향 점검</h3>
     <ul class="list">
       <li>🛡️ 결과에 <strong>개인이 특정될 정보</strong>가 남아 있지 않은가?</li>
