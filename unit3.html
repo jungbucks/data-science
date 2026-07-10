@@ -185,6 +185,8 @@ tr:last-child td { border-bottom: none; }
 .rule-box.show { display: block; animation: fadeUp .5s ease both; }
 .rule-box .r-rule { font-size: 17px; font-weight: 900; color: var(--ua-dark); }
 @keyframes fadeUp { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+.view { display: none; }
+.view.show { display: block; animation: fadeUp .45s ease both; }
 
 /* ---------- 방법 고르기 챌린지 ---------- */
 .pick-grid { display: grid; gap: 10px; margin-top: 4px; }
@@ -254,6 +256,7 @@ details.acc .acc-body { padding: 4px 26px 26px; }
   <a href="#c3">3-3 군집</a>
   <a href="#c4">3-4 연관</a>
   <a href="#c5">3-5 비교와 선택</a>
+  <a href="#c6">3-6 실전 3렌즈</a>
   <a href="#quiz">📝 퀴즈</a>
 </nav>
 
@@ -339,6 +342,9 @@ details.acc .acc-body { padding: 4px 26px 26px; }
       <div class="demo-note" id="kmNote">[0단계] 학생 12명의 점이 찍혀 있다. 아직 아무 그룹도 없다 — 컴퓨터는 어떻게 그룹을 "발견"할까?</div>
     </div>
 
+    <h3>군집은 잘 됐을까 — 군집의 성능 평가</h3>
+    <p>회귀에 오차가 있듯 군집에도 성적표가 있다. 기준은 <strong>뭉침새</strong> — <mark>같은 군집끼리는 가깝고, 다른 군집과는 멀수록</mark> 좋은 군집이다. 그리고 <strong>k(군집 개수)는 사람이 정한다</strong>: k=2, 3, 4…로 바꿔 가며 뭉침새를 비교해 보고, 더 나눠도 뭉침새가 별로 안 좋아지는 지점에서 멈추는 것이 요령이다. 위 데모의 데이터는 눈으로 봐도 두 덩어리 — k=2가 자연스럽다.</p>
+
     <div class="warn"><span class="t">🚨 오개념 주의보 — 군집의 이름은 사람이 붙인다</span>
       컴퓨터는 "군집 1, 군집 2"까지만 찾아 준다. 그것이 <mark>"공부형 그룹"인지 "게임형 그룹"인지 해석하고 이름 붙이는 것은 분석하는 사람의 몫</mark>이다. 해석 없는 군집은 그냥 색칠된 점이다.
     </div>
@@ -364,6 +370,13 @@ details.acc .acc-body { padding: 4px 26px 26px; }
       </div>
       <div class="demo-note" id="rcpNote">유튜브의 "이 영상을 본 사람이 함께 본 영상", 쇼핑몰의 "함께 구매한 상품"이 전부 이 원리다.</div>
     </div>
+
+    <h3>연관 규칙에도 성적표가 있다</h3>
+    <ul class="list">
+      <li><strong>지지도(support)</strong> — 전체에서 이 조합이 얼마나 자주 나오나: 라면+삼각김밥은 전체 8장 중 5장 = <mark>62.5%</mark> (희귀한 우연이 아니라는 증거)</li>
+      <li><strong>신뢰도(confidence)</strong> — 라면을 샀을 때 삼각김밥도 살 확률: 라면 6장 중 5장 = <mark>83%</mark> (규칙의 믿음직함)</li>
+      <li>두 숫자가 모두 높은 규칙만 "진짜 단짝"으로 채택한다 — 이것이 연관 분석의 과정이다.</li>
+    </ul>
   </div>
 
   <!-- ═══════════ 3-5 비교와 선택 ═══════════ -->
@@ -398,6 +411,45 @@ details.acc .acc-body { padding: 4px 26px 26px; }
 
     <div class="tip"><span class="t">💡 그리고 항상 — 두 가지 이상으로</span>
       2단원의 규칙이 여기서도 이어진다. 방법을 하나 골랐어도 <strong>다른 방법과 결과를 비교·평가</strong>해야 온전한 결론이다. 이 습관이 4단원 프로젝트의 심사 기준이 된다.
+    </div>
+  </div>
+
+  <!-- ═══════════ 3-6 실전 3렌즈 ═══════════ -->
+  <div class="card" id="c6">
+    <h2><span class="chip">3-6</span> 실전 — 진짜 데이터에 세 렌즈를 대 보자 🌍</h2>
+    <p class="lead">배운 세 가지 방법을 <strong>실제 세계 데이터</strong>에 차례로 적용한다. 렌즈마다 다른 발견이 나온다!</p>
+    <p>세계 여러 나라의 <strong>1인당 GDP × 행복 점수</strong> 데이터(세계 행복 보고서 유형)와, 우리 학교의 <strong>선택과목 수강 신청</strong> 데이터를 준비했다.</p>
+
+    <div class="demo">
+      <div class="demo-title">🎮 세 렌즈 실험실 <span class="badge-live">LIVE</span></div>
+      <div class="btn-row" style="margin-bottom:4px">
+        <button class="btn ghost lens-btn on" data-lens="reg">📈 회귀 렌즈</button>
+        <button class="btn ghost lens-btn" data-lens="clu">🫂 군집 렌즈</button>
+        <button class="btn ghost lens-btn" data-lens="asc">🛒 연관 렌즈</button>
+      </div>
+
+      <div class="view show" id="lens-scatter">
+        <div class="scatter-wrap">
+          <div class="axis-y">행복 점수 ↑</div>
+          <div class="scatter" id="hapScatter">
+            <svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+              <line class="reg-line" id="hapLine" x1="0" y1="90" x2="100" y2="15"></line>
+            </svg>
+          </div>
+          <div class="axis-x">1인당 GDP →</div>
+        </div>
+        <div class="legend" id="hapLegend" style="display:none"><span><span class="sw" style="background:var(--c1)"></span>군집 1</span><span><span class="sw" style="background:var(--c2)"></span>군집 2</span></div>
+      </div>
+
+      <div class="view" id="lens-course">
+        <div class="rcp-grid" id="courseGrid"></div>
+      </div>
+
+      <div class="demo-note" id="lensNote"></div>
+    </div>
+
+    <div class="tip"><span class="t">💡 이 카드가 시리즈의 결론이다</span>
+      회귀는 <strong>"소득이 오르면 행복도 대체로 오른다"</strong>는 경향을, 군집은 <strong>"나라들이 두 유형으로 나뉜다"</strong>는 구조를, 연관은 <strong>"과목 선택에 단짝이 있다"</strong>는 패턴을 보여줬다. <mark>같은 세상도 렌즈에 따라 다른 진실을 내놓는다</mark> — 그래서 데이터 과학자는 렌즈를 여러 개 들고 다닌다. 이제 4단원, 너의 프로젝트에서 직접 골라 써 보자.
     </div>
   </div>
 
@@ -602,6 +654,63 @@ details.acc .acc-body { padding: 4px 26px 26px; }
     });
     grid.appendChild(div);
   });
+})();
+
+/* ==========================================================
+   데모 5 — 3-6 세 렌즈 실험실 (행복 데이터 + 과목 선택)
+   ========================================================== */
+(function () {
+  // 나라 12개: x=1인당 GDP, y=행복 점수 (%) — 두 덩어리 + 양의 경향
+  const NATIONS = [[70,78],[78,85],[85,80],[90,88],[65,70],[74,74],[15,25],[22,32],[28,26],[35,40],[20,18],[30,35]];
+  const HIGH_IDX = [0,1,2,3,4,5]; // 고소득·고행복 군집
+  const sc = document.getElementById('hapScatter');
+  const dots = NATIONS.map(p => {
+    const d = document.createElement('div');
+    d.className = 'dot ua';
+    d.style.left = p[0] + '%';
+    d.style.bottom = p[1] + '%';
+    sc.appendChild(d);
+    return d;
+  });
+  const line = document.getElementById('hapLine');
+  const legend = document.getElementById('hapLegend');
+  const note = document.getElementById('lensNote');
+
+  // 과목 선택 데이터 (연관 렌즈)
+  const COURSES = [
+    ['정보', '인공지능수학', '물리학'], ['정보', '인공지능수학'], ['생명과학', '화학'],
+    ['정보', '인공지능수학', '경제'], ['미술창작', '음악연주'], ['정보', '물리학'],
+  ];
+  const HIT = ['정보', '인공지능수학'];
+  const grid = document.getElementById('courseGrid');
+  COURSES.forEach((items, i) => {
+    const div = document.createElement('div');
+    div.className = 'receipt';
+    div.innerHTML = '<div class="r-no">학생 ' + (i + 1) + '의 선택과목</div>' +
+      items.map(it => '<span class="r-item' + (HIT.every(h => items.includes(h)) && HIT.includes(it) ? ' hit' : '') + '">· ' + it + '</span>').join('');
+    grid.appendChild(div);
+  });
+
+  const NOTES = {
+    reg: '📈 <b>회귀 렌즈</b>: 점들 사이로 선을 그으니 <b>"1인당 GDP가 높을수록 행복 점수도 대체로 높다"</b>는 경향이 보인다. 단, 선에서 벗어난 나라들도 있다 — 소득이 행복의 <b>전부는 아니라는 것</b>까지가 해석이다.',
+    clu: '🫂 <b>군집 렌즈</b>: 같은 데이터를 묶어 보니 <b>"고소득·고행복 그룹"</b>과 <b>"저소득·저행복 그룹"</b> 두 유형이 발견된다. 회귀가 "경향"을 말할 때, 군집은 <b>"구조(유형)"</b>를 말한다 — 같은 데이터, 다른 발견!',
+    asc: '🛒 <b>연관 렌즈</b>: 이번엔 학교 데이터다. <b>정보를 선택한 4명 중 3명(신뢰도 75%)이 인공지능수학을 함께 선택</b>했다. 이 규칙으로 내년 시간표에서 두 과목이 겹치지 않게 배치할 수 있다 — 분석이 곧 행동이 된다!',
+  };
+  function setLens(lens) {
+    document.querySelectorAll('.lens-btn').forEach(b => b.classList.toggle('on', b.dataset.lens === lens));
+    document.getElementById('lens-scatter').classList.toggle('show', lens !== 'asc');
+    document.getElementById('lens-course').classList.toggle('show', lens === 'asc');
+    if (lens === 'reg') {
+      line.classList.add('show'); legend.style.display = 'none';
+      dots.forEach(d => { d.className = 'dot ua'; });
+    } else if (lens === 'clu') {
+      line.classList.remove('show'); legend.style.display = 'flex';
+      dots.forEach((d, i) => { d.className = 'dot ' + (HIGH_IDX.includes(i) ? 'k1' : 'k2'); });
+    }
+    note.innerHTML = NOTES[lens];
+  }
+  document.querySelectorAll('.lens-btn').forEach(b => b.addEventListener('click', () => setLens(b.dataset.lens)));
+  setLens('reg');
 })();
 
 /* ==========================================================
