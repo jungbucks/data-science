@@ -27,4 +27,4 @@
 ## 이력 요점
 
 - 2026-07-10 제작·배포. 같은 날 성취기준 해설(가) 반영 완료 — 분석 가치 판단 3질문(u1), DB 필요성(u1), 특성 표 확장·결과 차이의 이유(u2), 유사성/상이성·향상도·평가 잣대 표(u3), 전처리 비교·성찰→수정→일반화(u4).
-- 형제: `sw-life`(같은 문법, 웜 무드)·`poke-ethics`·`code-drop` — 각 폴더 CLAUDE.md 참조.
+- 형제: `sw-life`(같은 문법, 웜 무드)·`sort-lab`·`poke-ethics`·`code-drop`·`lightcal` — 각 폴더 CLAUDE.md 참조. 전체 지도는 `jungle/CLAUDE.md`.
